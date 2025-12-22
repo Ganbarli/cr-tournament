@@ -3,742 +3,530 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <title>Clash Royale 1v1 Tournament</title>
+  <title>CR Tournament Manager Pro</title>
   <style>
     :root{
-      --bg:#0b1020;
-      --card:#111a33;
-      --card2:#0f1730;
-      --text:#e9eeff;
-      --muted:#a8b0d6;
-      --line:rgba(255,255,255,.10);
-      --accent:#7c5cff;
-      --accent2:#2ee59d;
-      --danger:#ff4d6d;
-      --warn:#ffcc00;
-      --shadow: 0 12px 30px rgba(0,0,0,.35);
-      --radius:18px;
+      --bg:#0b1020; --card:#161f3a; --text:#e9eeff; --muted:#94a3b8;
+      --line:rgba(255,255,255,.08); --accent:#7c5cff; --accent2:#2ee59d;
+      --danger:#ff4d6d; --warn:#ffcc00; --gold: #ffd700;
+      --shadow: 0 12px 30px rgba(0,0,0,.35); --radius:16px;
     }
     *{box-sizing:border-box}
     body{
-      margin:0;
-      font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Arial, "Apple Color Emoji","Segoe UI Emoji";
-      background: radial-gradient(1200px 700px at 30% 0%, rgba(124,92,255,.25), transparent 55%),
-                  radial-gradient(900px 600px at 90% 10%, rgba(46,229,157,.18), transparent 50%),
-                  var(--bg);
-      color:var(--text);
+      margin:0; font-family: ui-sans-serif, system-ui, -apple-system, sans-serif;
+      background: var(--bg); color:var(--text);
+      background-image: 
+        radial-gradient(at 0% 0%, rgba(124,92,255,0.15) 0px, transparent 50%),
+        radial-gradient(at 100% 100%, rgba(46,229,157,0.1) 0px, transparent 50%);
+      background-attachment: fixed;
     }
-    a{color:inherit}
-    .wrap{max-width:1100px;margin:28px auto;padding:0 16px 40px}
-    header{
-      display:flex; gap:14px; align-items:flex-end; justify-content:space-between;
-      margin-bottom:16px;
+    .wrap{max-width:1100px;margin:0 auto;padding:20px 16px 60px}
+    
+    /* --- HEADER --- */
+    header{ display:flex; flex-wrap:wrap; gap:20px; align-items:flex-end; justify-content:space-between; margin-bottom:24px; padding-bottom:20px; border-bottom:1px solid var(--line); }
+    h1{margin:0;font-size:28px; background: linear-gradient(to right, #fff, #a8b0d6); -webkit-background-clip: text; -webkit-text-fill-color: transparent;}
+    .pill{ background:rgba(255,255,255,0.05); padding:8px 16px; border-radius:30px; border:1px solid var(--line); font-size:13px; display:inline-flex; align-items:center; gap:8px;}
+    
+    /* --- LAYOUT --- */
+    .grid{ display:grid; grid-template-columns: 340px 1fr; gap:20px; }
+    @media (max-width: 900px){ .grid{grid-template-columns:1fr} }
+    
+    .card{ background:var(--card); border:1px solid var(--line); border-radius:var(--radius); padding:20px; height:100%; }
+    .card h2{ margin:0 0 15px; font-size:12px; text-transform:uppercase; letter-spacing:1px; color:var(--muted); }
+    
+    /* --- INPUTS --- */
+    .row{display:flex; gap:10px; margin-bottom:10px;}
+    input, select, button{ width:100%; border-radius:8px; border:1px solid var(--line); background:rgba(0,0,0,0.3); color:white; padding:10px; outline:none; transition:0.2s; font-size:14px;}
+    input:focus{ border-color:var(--accent); }
+    button{ cursor:pointer; background:var(--accent); border-color:var(--accent); font-weight:600; }
+    button:hover{ filter:brightness(1.2); transform:translateY(-1px); }
+    .btn-ghost{ background:transparent; border-color:var(--line); color:var(--muted); }
+    .btn-ghost:hover{ color:white; border-color:white; }
+    .btn-danger{ background:rgba(255,77,109,0.1); border-color:rgba(255,77,109,0.3); color:var(--danger); }
+    .btn-danger:hover{ background:var(--danger); color:white; }
+
+    /* --- LISTS --- */
+    .list-item{
+        display:flex; justify-content:space-between; align-items:center;
+        padding:10px; border-bottom:1px solid var(--line); font-size:14px;
     }
-    .title h1{margin:0;font-size:30px;letter-spacing:.2px}
-    .title p{margin:6px 0 0;color:var(--muted);font-size:13.5px}
-    .pill{
-      display:inline-flex;align-items:center;gap:10px;
-      background: rgba(255,255,255,.06);
-      border:1px solid var(--line);
-      padding:10px 12px;border-radius:999px;
-      box-shadow: var(--shadow);
-    }
-    .pill b{font-weight:650}
-    .grid{
-      display:grid;
-      grid-template-columns: 1.2fr 1fr;
-      gap:14px;
-      margin-top:12px;
-    }
-    @media (max-width: 900px){
-      .grid{grid-template-columns:1fr}
-      header{flex-direction:column;align-items:flex-start}
-    }
-    .card{
-      background: linear-gradient(180deg, rgba(255,255,255,.06), rgba(255,255,255,.03));
-      border:1px solid var(--line);
-      border-radius:var(--radius);
-      padding:14px;
-      box-shadow: var(--shadow);
-    }
-    .card h2{
-      margin:0 0 10px;
-      font-size:16px;
-      letter-spacing:.2px;
-    }
-    .row{display:flex;flex-wrap:wrap;gap:10px;align-items:center}
-    input, select, button{
-      border-radius:12px;
-      border:1px solid var(--line);
-      background: rgba(0,0,0,.18);
-      color:var(--text);
-      padding:10px 11px;
-      outline:none;
-    }
-    input::placeholder{color:rgba(233,238,255,.45)}
-    button{
-      cursor:pointer;
-      background: rgba(124,92,255,.18);
-      border:1px solid rgba(124,92,255,.45);
-      transition: transform .06s ease, background .15s ease;
-    }
-    button:hover{background: rgba(124,92,255,.28)}
-    button:active{transform: translateY(1px)}
-    .btn2{background: rgba(46,229,157,.14); border-color: rgba(46,229,157,.45)}
-    .btn2:hover{background: rgba(46,229,157,.20)}
-    .btnghost{background: rgba(255,255,255,.06); border-color: var(--line)}
-    .btndanger{background: rgba(255,77,109,.15); border-color: rgba(255,77,109,.50)}
-    .btndanger:hover{background: rgba(255,77,109,.22)}
-    .small{font-size:13px}
-    .muted{color:var(--muted)}
-    .status{margin-top:8px;font-size:13px;color:var(--muted)}
-    .status.ok{color:var(--accent2)}
-    .status.err{color:var(--danger)}
-    .status.warn{color:var(--warn)}
-    .split{
-      display:grid; grid-template-columns: 1fr 1fr; gap:14px;
-    }
-    @media (max-width: 900px){ .split{grid-template-columns:1fr} }
-    .list{
-      display:flex; flex-direction:column; gap:8px;
-      max-height: 320px; overflow:auto; padding-right:6px;
-    }
-    .item{
-      display:flex; gap:10px; justify-content:space-between; align-items:center;
-      padding:10px 10px;
-      border:1px solid var(--line);
-      border-radius:14px;
-      background: rgba(0,0,0,.14);
-    }
-    .item .left{display:flex; flex-direction:column; gap:2px}
-    .item .name{font-weight:650}
-    .item .meta{font-size:12px;color:var(--muted)}
-    .tag{
-      font-size:12px; padding:4px 10px; border-radius:999px;
-      border:1px solid var(--line);
-      background: rgba(255,255,255,.06);
-      color:var(--muted);
-      white-space:nowrap;
-    }
-    table{width:100%; border-collapse:collapse; margin-top:10px}
-    th,td{border-bottom:1px solid var(--line); padding:10px 8px; text-align:left; font-size:13.5px}
-    th{color:var(--muted); font-weight:600}
-    .hr{height:1px;background:var(--line);margin:10px 0}
-    .twoCols{
-      display:grid; grid-template-columns: 1fr 1fr; gap:10px;
-    }
-    @media (max-width: 700px){ .twoCols{grid-template-columns:1fr} }
-    .hint{font-size:12.5px;color:var(--muted)}
-    .mono{font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;}
+    .list-item:last-child{ border-bottom:none; }
+    .tag-badge{ background:rgba(0,0,0,0.4); padding:2px 6px; border-radius:4px; font-family:monospace; font-size:10px; color:var(--muted); margin-left:6px; }
+    
+    /* --- STANDINGS --- */
+    table{width:100%; border-collapse:collapse; font-size:14px;}
+    th{text-align:left; color:var(--muted); padding:10px; border-bottom:1px solid var(--line); font-size:11px; text-transform:uppercase;}
+    td{padding:10px; border-bottom:1px solid var(--line); vertical-align: middle;}
+    .player-cell { display:flex; align-items:center; gap:10px; }
+    .avatar-sm { width:24px; height:24px; border-radius:50%; object-fit:cover; background:#333; }
+    
+    /* --- MATCHES --- */
+    .match-card{ background:rgba(0,0,0,0.2); border:1px solid var(--line); border-radius:12px; padding:12px; margin-bottom:10px; }
+    .match-players{ display:flex; justify-content:space-between; align-items:center; gap:10px; }
+    .p-side{ flex:1; display:flex; align-items:center; gap:8px; font-size:14px; cursor:pointer; padding:4px; border-radius:6px; transition:0.2s; }
+    .p-side:hover { background:rgba(255,255,255,0.05); }
+    .p-right{ justify-content:flex-end; text-align:right; flex-direction: row-reverse;}
+    .vs-badge{ font-weight:bold; color:var(--muted); font-size:12px; }
+    .winner-text{ color:var(--accent2); font-weight:bold; }
+    .winner-text .avatar-sm { border: 2px solid var(--accent2); }
+
+    /* --- MODAL (PROFILE) --- */
+    .modal-overlay{ position:fixed; inset:0; background:rgba(0,0,0,0.8); backdrop-filter:blur(5px); display:flex; align-items:center; justify-content:center; z-index:100; opacity:0; pointer-events:none; transition:0.3s; }
+    .modal-overlay.open{ opacity:1; pointer-events:all; }
+    .profile-card{ background:#1c2540; border:1px solid var(--accent); width:340px; border-radius:20px; overflow:hidden; transform:scale(0.9); transition:0.3s; box-shadow: 0 0 40px rgba(124,92,255,0.2); }
+    .modal-overlay.open .profile-card{ transform:scale(1); }
+    .pc-header{ background:linear-gradient(45deg, var(--accent), #5035b4); padding:20px; text-align:center; position:relative; }
+    .pc-avatar{ width:80px; height:80px; border-radius:50%; border:3px solid white; background:#333; margin:0 auto 10px; object-fit:cover; display:block;}
+    .pc-name{ font-size:22px; font-weight:bold; color:white; margin:0; }
+    .pc-tag{ background:rgba(0,0,0,0.3); color:rgba(255,255,255,0.8); padding:4px 10px; border-radius:12px; font-family:monospace; font-size:12px; margin-top:5px; display:inline-block; }
+    .pc-stats{ padding:20px; display:grid; grid-template-columns:1fr 1fr; gap:15px; }
+    .stat-box{ background:rgba(0,0,0,0.2); padding:10px; border-radius:10px; text-align:center; border:1px solid var(--line); }
+    .stat-val{ font-size:18px; font-weight:bold; color:var(--text); display:block; }
+    .stat-lbl{ font-size:11px; color:var(--muted); text-transform:uppercase; margin-top:4px; display:block; }
+    .close-modal{ position:absolute; top:10px; right:10px; background:rgba(0,0,0,0.3); border:none; color:white; width:30px; height:30px; border-radius:50%; display:grid; place-items:center; cursor:pointer; }
+    
+    /* Utilities */
+    .hidden{display:none}
+    .status{ margin-top:10px; font-size:13px; color:var(--accent2); min-height:20px; }
   </style>
 </head>
 <body>
+
+  <div class="modal-overlay" id="profileModal">
+    <div class="profile-card">
+        <div class="pc-header">
+            <button class="close-modal" onclick="closeProfile()">✕</button>
+            <img src="" class="pc-avatar" id="pmImg">
+            <h3 class="pc-name" id="pmName">Name</h3>
+            <span class="pc-tag" id="pmTag">#TAG</span>
+        </div>
+        <div class="pc-stats">
+            <div class="stat-box">
+                <span class="stat-val" id="pmTrophies">0</span>
+                <span class="stat-lbl">🏆 Trophies</span>
+            </div>
+            <div class="stat-box">
+                <span class="stat-val" id="pmRank">Unranked</span>
+                <span class="stat-lbl">Best Rank</span>
+            </div>
+            <div class="stat-box" style="grid-column:span 2">
+                <span class="stat-val" id="pmCard" style="font-size:14px; color:var(--accent)">-</span>
+                <span class="stat-lbl">Favorite Card</span>
+            </div>
+        </div>
+    </div>
+  </div>
+
   <div class="wrap">
     <header>
-      <div class="title">
-        <h1>Clash Royale 1v1 Tournament</h1>
-        <p>Create → add players → generate round-robin → save winners → standings. Old tournaments stay saved.</p>
+      <div>
+        <h1>👑 Tournament Hub</h1>
+        <div class="pill">
+            <span style="color:var(--muted)">Active:</span> 
+            <b id="activeTourneyName">None</b>
+        </div>
       </div>
-      <div class="pill small">
-        <span class="muted">Current:</span>
-        <b id="currentTournamentLabel">None</b>
-        <span class="tag mono" id="currentTournamentIdTag" style="display:none"></span>
-        <button class="btnghost" id="copyShareBtn" title="Copy share link">Copy link</button>
+      <div>
+        <button class="btn-ghost" id="refreshBtn">↻ Refresh Data</button>
       </div>
     </header>
 
     <div class="grid">
-      <!-- LEFT COLUMN -->
-      <div class="card">
-        <h2>🏆 Tournament History</h2>
-        <div class="row">
-          <input id="tournamentName" placeholder="New tournament name (e.g., Friday Night #3)" style="flex:1;min-width:240px" />
-          <button id="createTournamentBtn">Create</button>
-          <button class="btnghost" id="refreshAllBtn">Refresh</button>
-        </div>
-        <div class="status" id="status">Ready.</div>
-        <div class="hr"></div>
-        <div class="list" id="tournamentsList"></div>
-        <div class="hint" style="margin-top:10px;">
-          Tip: click <b>Select</b> to view old tournaments anytime. <span class="muted">(Delete removes matches too.)</span>
-        </div>
-      </div>
-
-      <!-- RIGHT COLUMN -->
-      <div class="card">
-        <h2>👥 Players & Matchmaking</h2>
-
-        <div class="split">
-          <div>
-            <div class="hint">Add a player to the selected tournament:</div>
-            <div class="row" style="margin-top:8px;">
-              <select id="existingPlayersSelect" style="flex:1;min-width:240px">
-                <option value="">Choose existing player…</option>
-              </select>
-              <button class="btn2" id="addExistingBtn">Add</button>
+        
+        <div style="display:flex; flex-direction:column; gap:20px;">
+            
+            <div class="card">
+                <h2>1. Manage Tournament</h2>
+                <div class="row">
+                    <select id="tourneySelect"><option>Loading...</option></select>
+                </div>
+                <div class="row">
+                    <input id="newTourneyName" placeholder="New Tournament Name...">
+                    <button style="width:auto" id="createTourneyBtn">+</button>
+                </div>
+                <button class="btn-danger" id="deleteTourneyBtn" style="margin-top:10px;">Delete Selected</button>
             </div>
 
-            <div class="row" style="margin-top:10px;">
-              <input id="playerName" placeholder="Or type a new player name" style="flex:1;min-width:240px" />
-              <button id="addPlayerBtn">Create & Add</button>
+            <div class="card">
+                <h2>2. Add Players</h2>
+                <p style="font-size:12px; color:var(--muted); margin-bottom:10px;">
+                    Enter a CR Player Tag (e.g. #2P090) or just a name to auto-fetch stats.
+                </p>
+                
+                <div class="row">
+                    <input id="playerTagInput" placeholder="#TAG (or Name)" style="font-family:monospace">
+                    <button id="addPlayerBtn">Add</button>
+                </div>
+                
+                <div id="playerList" style="margin-top:15px; max-height:300px; overflow-y:auto">
+                    </div>
             </div>
 
-            <div class="hr"></div>
-            <div class="hint">Participants in this tournament:</div>
-            <div id="playersList" class="small" style="margin-top:8px;"></div>
-          </div>
+            <div class="card">
+                <h2>3. Actions</h2>
+                <button id="generateBtn" style="margin-bottom:10px;">⚡ Generate Schedule</button>
+                <button class="btn-danger" id="clearScheduleBtn">🗑 Clear Schedule</button>
+                <div class="status" id="statusMsg">Ready</div>
+            </div>
 
-          <div>
-            <div class="hint">Schedule:</div>
-            <div class="row" style="margin-top:8px;">
-              <button id="generateBtn">Generate round-robin</button>
-              <button class="btndanger" id="deleteMatchesBtn">Delete schedule</button>
-            </div>
-            <div class="row" style="margin-top:10px;">
-              <button class="btnghost" id="standingsBtn">Update standings</button>
-              <button class="btnghost" id="clearLocalBtn">Clear selection</button>
-            </div>
-            <div class="hint" style="margin-top:10px;">
-              Round-robin: everyone plays each other once. Odd players → automatic BYE rotation.
-            </div>
-          </div>
         </div>
 
-        <div class="hr"></div>
+        <div style="display:flex; flex-direction:column; gap:20px;">
+            
+            <div class="card">
+                <h2>🏆 League Standings</h2>
+                <div id="standingsContainer">
+                    <p style="color:var(--muted); font-style:italic; padding:20px;">No players yet.</p>
+                </div>
+            </div>
 
-        <div class="twoCols">
-          <div>
-            <h2 style="margin-top:0;">🗓 Matches</h2>
-            <div id="matchesArea" class="small"></div>
-          </div>
-          <div>
-            <h2 style="margin-top:0;">📊 Standings</h2>
-            <div id="standingsArea" class="small"></div>
-          </div>
+            <div class="card">
+                <h2>⚔️ Match Schedule</h2>
+                <div id="matchesContainer">
+                    <p style="color:var(--muted); font-style:italic; padding:20px;">No schedule generated.</p>
+                </div>
+            </div>
+
         </div>
-      </div>
     </div>
   </div>
 
   <script type="module">
-    // ✅ YOUR SUPABASE VALUES
+    // --- CONFIG ---
     const SUPABASE_URL = "https://izmzpnfpcdxdqwgghsyq.supabase.co";
     const SUPABASE_ANON_KEY = "sb_publishable_4kW-ZwFSbzqPkWz63jYcGw_Kldfdp7R";
 
     import { createClient } from "https://cdn.jsdelivr.net/npm/@supabase/supabase-js/+esm";
     const supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
-
     const $ = (id) => document.getElementById(id);
+    
+    // Global State
+    let currentTid = localStorage.getItem('cr_tid') || null;
+    let playersCache = [];
 
-    function setStatus(msg, type="muted"){
-      const el = $("status");
-      el.textContent = msg;
-      el.className = "status " + (type === "ok" ? "ok" : type === "err" ? "err" : type === "warn" ? "warn" : "");
+    // --- MOCK API (To simulate Clash Royale Data) ---
+    // Since we don't have a backend proxy, this simulates fetching data
+    async function fetchMockStats(tagInput) {
+        // Simulating network delay
+        await new Promise(r => setTimeout(r, 600)); 
+        
+        // Mock Data Generator
+        const isTag = tagInput.startsWith('#');
+        const cleanName = tagInput.replace('#','');
+        
+        const randomTrophies = Math.floor(Math.random() * (9000 - 4000) + 4000);
+        return {
+            tag: isTag ? tagInput.toUpperCase() : `#${cleanName.toUpperCase().slice(0,5)}`,
+            name: tagInput,
+            trophies: randomTrophies,
+            bestRank: randomTrophies > 7000 ? Math.floor(Math.random() * 1000) : 0,
+            favoriteCard: ['Mega Knight', 'Hog Rider', 'Log', 'P.E.K.K.A', 'Miner'][Math.floor(Math.random()*5)],
+            // Generates a unique avatar based on the name
+            avatarUrl: `https://ui-avatars.com/api/?name=${tagInput}&background=random&color=fff`
+        };
     }
 
-    function escapeHtml(s){
-      return (s ?? "").toString()
-        .replaceAll("&","&amp;").replaceAll("<","&lt;").replaceAll(">","&gt;")
-        .replaceAll('"',"&quot;").replaceAll("'","&#039;");
-    }
+    // --- CORE LOGIC ---
 
-    function fmtDate(iso){
-      try{
-        const d = new Date(iso);
-        return d.toLocaleString(undefined, { year:"numeric", month:"short", day:"2-digit", hour:"2-digit", minute:"2-digit" });
-      }catch{ return iso; }
-    }
-
-    // ---- Tournament selection via localStorage + URL param ?t= ----
-    function getTournamentId(){
-      const url = new URL(window.location.href);
-      const t = url.searchParams.get("t");
-      if (t) return t;
-      return localStorage.getItem("cr_tournament_id");
-    }
-    function setTournamentId(id){
-      localStorage.setItem("cr_tournament_id", id);
-      const url = new URL(window.location.href);
-      url.searchParams.set("t", id);
-      history.replaceState(null, "", url.toString());
-    }
-    function clearTournamentId(){
-      localStorage.removeItem("cr_tournament_id");
-      const url = new URL(window.location.href);
-      url.searchParams.delete("t");
-      history.replaceState(null, "", url.toString());
-    }
-
-    // ---- Round-robin schedule generator (circle method) ----
-    function generateRoundRobin(playerIds){
-      const list = [...playerIds];
-      const BYE = null;
-      if (list.length % 2 === 1) list.push(BYE);
-
-      const n = list.length;
-      const rounds = n - 1;
-      const half = n / 2;
-
-      const fixed = list[0];
-      let rotating = list.slice(1);
-
-      const schedule = [];
-      for (let r = 0; r < rounds; r++){
-        const left = [fixed, ...rotating.slice(0, half - 1)];
-        const right = rotating.slice(half - 1).slice().reverse();
-
-        const matches = [];
-        for (let i=0;i<half;i++){
-          const a = left[i], b = right[i];
-          if (a !== BYE && b !== BYE) matches.push([a,b]);
+    async function init() {
+        await loadTournaments();
+        if(currentTid) await refreshData();
+        
+        // Listeners
+        $('createTourneyBtn').onclick = createTournament;
+        $('addPlayerBtn').onclick = addPlayer;
+        $('generateBtn').onclick = generateSchedule;
+        $('refreshBtn').onclick = refreshData;
+        $('tourneySelect').onchange = (e) => {
+            currentTid = e.target.value;
+            localStorage.setItem('cr_tid', currentTid);
+            refreshData();
         }
-        schedule.push({ round: r+1, matches });
-
-        rotating = [rotating[rotating.length - 1], ...rotating.slice(0, rotating.length - 1)];
-      }
-      return schedule;
+        $('deleteTourneyBtn').onclick = async () => {
+             if(!currentTid) return;
+             if(confirm('Delete tournament?')) {
+                 await supabase.from('tournaments').delete().eq('id', currentTid);
+                 currentTid = null;
+                 await loadTournaments();
+                 window.location.reload();
+             }
+        }
+        $('clearScheduleBtn').onclick = async () => {
+             if(confirm('Delete all matches?')) {
+                 await supabase.from('matches').delete().eq('tournament_id', currentTid);
+                 refreshData();
+             }
+        }
     }
 
-    // ---- Data loaders ----
-    async function loadTournamentLabel(){
-      const tid = getTournamentId();
-      if (!tid){
-        $("currentTournamentLabel").textContent = "None";
-        $("currentTournamentIdTag").style.display = "none";
-        return;
-      }
-
-      const { data, error } = await supabase
-        .from("tournaments")
-        .select("id,name,created_at")
-        .eq("id", tid)
-        .maybeSingle();
-
-      if (error || !data){
-        $("currentTournamentLabel").textContent = "None";
-        $("currentTournamentIdTag").style.display = "none";
-        clearTournamentId();
-        return;
-      }
-
-      $("currentTournamentLabel").textContent = data.name;
-      $("currentTournamentIdTag").style.display = "inline-flex";
-      $("currentTournamentIdTag").textContent = data.id.slice(0,8);
+    async function loadTournaments() {
+        const { data } = await supabase.from('tournaments').select('*').order('created_at', { ascending:false });
+        const sel = $('tourneySelect');
+        if(data && data.length) {
+            sel.innerHTML = data.map(t => `<option value="${t.id}">${t.name}</option>`).join('');
+            // Set selection logic
+            if(currentTid) {
+                // verify exists
+                const exists = data.find(t => t.id === currentTid);
+                if(exists) sel.value = currentTid;
+                else { currentTid = data[0].id; sel.value = currentTid; }
+            } else {
+                currentTid = data[0].id;
+                sel.value = currentTid;
+            }
+        } else {
+            sel.innerHTML = '<option>No tournaments</option>';
+        }
     }
 
-    async function renderTournamentsList(){
-      const tid = getTournamentId();
+    async function refreshData() {
+        if(!currentTid) return;
+        setStatus('Loading...');
+        
+        // Update Title
+        const tName = $('tourneySelect').options[$('tourneySelect').selectedIndex]?.text;
+        $('activeTourneyName').innerText = tName || "None";
 
-      const { data: tournaments, error } = await supabase
-        .from("tournaments")
-        .select("id,name,created_at")
-        .order("created_at", { ascending:false })
-        .limit(50);
+        // 1. Get Players for this tournament
+        // We join tournament_players -> players
+        const { data: pData } = await supabase
+            .from('tournament_players')
+            .select('player_id, players(*)')
+            .eq('tournament_id', currentTid);
+        
+        // Extract flat player objects
+        playersCache = pData ? pData.map(d => d.players) : [];
+        renderPlayerList();
 
-      if (error){
-        $("tournamentsList").innerHTML = `<div class="item"><div class="left"><div class="name">Error</div><div class="meta">${escapeHtml(error.message)}</div></div></div>`;
-        return;
-      }
+        // 2. Get Matches
+        const { data: matches } = await supabase
+            .from('matches')
+            .select('*')
+            .eq('tournament_id', currentTid)
+            .order('round_number');
+        
+        renderMatches(matches || []);
+        calculateAndRenderStandings(matches || []);
+        setStatus('Ready');
+    }
 
-      if (!tournaments || tournaments.length === 0){
-        $("tournamentsList").innerHTML = `<div class="muted small">No tournaments yet. Create one above.</div>`;
-        return;
-      }
+    // --- PLAYER LOGIC ---
 
-      $("tournamentsList").innerHTML = tournaments.map(t => {
-        const isCurrent = (t.id === tid);
-        return `
-          <div class="item">
-            <div class="left">
-              <div class="name">${escapeHtml(t.name)} ${isCurrent ? `<span class="tag">Current</span>` : ""}</div>
-              <div class="meta">Created: ${escapeHtml(fmtDate(t.created_at))} · ID: <span class="mono">${escapeHtml(t.id.slice(0,8))}</span></div>
+    async function addPlayer() {
+        const input = $('playerTagInput').value.trim();
+        if(!input) return;
+
+        setStatus('Fetching Stats...');
+        
+        // 1. Simulate API Call to get "High Level" data
+        const stats = await fetchMockStats(input);
+        
+        // 2. Insert into Global Players Table (Upsert)
+        // If tag exists, update stats. If not, create.
+        const { data: player, error } = await supabase
+            .from('players')
+            .upsert({ 
+                tag: stats.tag,
+                name: stats.name, 
+                trophies: stats.trophies,
+                best_rank: stats.bestRank,
+                avatar_url: stats.avatarUrl,
+                favorite_card: stats.favoriteCard
+            }, { onConflict: 'tag' })
+            .select()
+            .single();
+
+        if(error) { setStatus('Error: ' + error.message); return; }
+
+        // 3. Link to Tournament
+        const { error: linkErr } = await supabase
+            .from('tournament_players')
+            .insert({ tournament_id: currentTid, player_id: player.id });
+
+        if(linkErr) {
+            if(linkErr.code === '23505') setStatus('Player already in tournament!'); 
+            else setStatus('Error linking player');
+        } else {
+            $('playerTagInput').value = '';
+            refreshData();
+        }
+    }
+
+    function renderPlayerList() {
+        $('playerList').innerHTML = playersCache.map(p => `
+            <div class="list-item">
+                <div style="display:flex; align-items:center; gap:10px">
+                    <img src="${p.avatar_url || 'https://ui-avatars.com/api/?name=?'}" class="avatar-sm">
+                    <div>
+                        <b style="cursor:pointer; color:var(--accent2)" onclick="openProfile('${p.id}')">${p.name}</b>
+                        <span class="tag-badge">${p.tag || ''}</span>
+                    </div>
+                </div>
+                <div style="font-size:12px; color:var(--gold)">🏆 ${p.trophies}</div>
             </div>
-            <div class="row" style="gap:8px;justify-content:flex-end">
-              <button class="btnghost" data-select="${t.id}">Select</button>
-              <button class="btndanger" data-delete="${t.id}">Delete</button>
-            </div>
-          </div>
-        `;
-      }).join("");
-
-      document.querySelectorAll("[data-select]").forEach(btn => {
-        btn.addEventListener("click", async () => {
-          const id = btn.getAttribute("data-select");
-          setTournamentId(id);
-          setStatus("Switched tournament.", "ok");
-          await refreshAll();
-        });
-      });
-
-      document.querySelectorAll("[data-delete]").forEach(btn => {
-        btn.addEventListener("click", async () => {
-          const id = btn.getAttribute("data-delete");
-          const ok = confirm("Delete this tournament? This will also delete its matches and participants.");
-          if (!ok) return;
-
-          const { error } = await supabase.from("tournaments").delete().eq("id", id);
-          if (error) return setStatus(error.message, "err");
-
-          if (getTournamentId() === id) clearTournamentId();
-          setStatus("Tournament deleted.", "warn");
-          await refreshAll();
-        });
-      });
+        `).join('');
     }
 
-    async function getParticipants(tournamentId){
-      const { data, error } = await supabase
-        .from("tournament_players")
-        .select("player_id, players(name)")
-        .eq("tournament_id", tournamentId);
+    // --- SCHEDULE LOGIC (Round Robin) ---
 
-      if (error) throw error;
-      return (data || []).map(r => ({ id: r.player_id, name: r.players?.name ?? "Unknown" }));
-    }
-
-    async function renderPlayers(){
-      const tid = getTournamentId();
-      if (!tid){
-        $("playersList").innerHTML = `<span class="muted">Select or create a tournament first.</span>`;
-        return;
-      }
-
-      const participants = await getParticipants(tid);
-      if (participants.length === 0){
-        $("playersList").innerHTML = `<span class="muted">No players yet.</span>`;
-        return;
-      }
-
-      $("playersList").innerHTML = participants.map(p => `
-        <div class="item" style="padding:8px 10px;">
-          <div class="left">
-            <div class="name">${escapeHtml(p.name)}</div>
-            <div class="meta">ID: <span class="mono">${escapeHtml(p.id.slice(0,8))}</span></div>
-          </div>
-          <div class="row" style="gap:8px;">
-            <button class="btndanger" data-remove-player="${p.id}">Remove</button>
-          </div>
-        </div>
-      `).join("");
-
-      document.querySelectorAll("[data-remove-player]").forEach(btn => {
-        btn.addEventListener("click", async () => {
-          const pid = btn.getAttribute("data-remove-player");
-          const ok = confirm("Remove this player from the tournament? (Does not delete player globally)");
-          if (!ok) return;
-
-          const { error } = await supabase
-            .from("tournament_players")
-            .delete()
-            .eq("tournament_id", tid)
-            .eq("player_id", pid);
-
-          if (error) return setStatus(error.message, "err");
-          setStatus("Player removed from tournament.", "warn");
-          await refreshAll();
-        });
-      });
-    }
-
-    async function renderExistingPlayersDropdown(){
-      const { data, error } = await supabase
-        .from("players")
-        .select("id,name,created_at")
-        .order("created_at", { ascending:false })
-        .limit(200);
-
-      if (error){
-        $("existingPlayersSelect").innerHTML = `<option value="">Error loading players</option>`;
-        return;
-      }
-
-      const opts = (data || []).map(p => `<option value="${p.id}">${escapeHtml(p.name)}</option>`).join("");
-      $("existingPlayersSelect").innerHTML = `<option value="">Choose existing player…</option>${opts}`;
-    }
-
-    async function renderMatches(){
-      const tid = getTournamentId();
-      if (!tid){
-        $("matchesArea").innerHTML = `<span class="muted">Select or create a tournament first.</span>`;
-        return;
-      }
-
-      const { data: matches, error } = await supabase
-        .from("matches")
-        .select("id, round_number, player_a_id, player_b_id, winner_id, completed, playersA:player_a_id(name), playersB:player_b_id(name)")
-        .eq("tournament_id", tid)
-        .order("round_number", { ascending:true });
-
-      if (error){
-        $("matchesArea").innerHTML = `<span style="color:var(--danger)">${escapeHtml(error.message)}</span>`;
-        return;
-      }
-
-      if (!matches || matches.length === 0){
-        $("matchesArea").innerHTML = `<span class="muted">No schedule yet. Click “Generate round-robin”.</span>`;
-        return;
-      }
-
-      const byRound = new Map();
-      for (const m of matches){
-        if (!byRound.has(m.round_number)) byRound.set(m.round_number, []);
-        byRound.get(m.round_number).push(m);
-      }
-
-      let html = "";
-      for (const [round, arr] of byRound.entries()){
-        html += `<div class="item" style="flex-direction:column;align-items:stretch;gap:8px;">
-          <div class="row" style="justify-content:space-between;">
-            <div><b>Round ${round}</b></div>
-            <div class="tag">${arr.filter(x=>x.completed).length}/${arr.length} done</div>
-          </div>
-          <table>
-            <thead><tr><th>Match</th><th>Winner</th><th></th></tr></thead>
-            <tbody>
-        `;
-
-        for (const m of arr){
-          const aName = m.playersA?.name ?? "A";
-          const bName = m.playersB?.name ?? "B";
-          html += `
-            <tr>
-              <td>${escapeHtml(aName)} vs ${escapeHtml(bName)}</td>
-              <td>
-                <select data-match="${m.id}">
-                  <option value="">(not set)</option>
-                  <option value="${m.player_a_id}" ${m.winner_id === m.player_a_id ? "selected" : ""}>${escapeHtml(aName)}</option>
-                  <option value="${m.player_b_id}" ${m.winner_id === m.player_b_id ? "selected" : ""}>${escapeHtml(bName)}</option>
-                </select>
-              </td>
-              <td><button class="btn2" data-save="${m.id}">Save</button></td>
-            </tr>
-          `;
+    async function generateSchedule() {
+        if(playersCache.length < 2) return setStatus('Need 2+ players');
+        setStatus('Generating...');
+        
+        const pIds = playersCache.map(p => p.id);
+        if(pIds.length % 2 !== 0) pIds.push(null); // Bye
+        
+        const n = pIds.length;
+        const rounds = [];
+        
+        // Circle Method Algorithm
+        for(let r=0; r < n-1; r++) {
+            for(let i=0; i < n/2; i++) {
+                const a = pIds[i];
+                const b = pIds[n-1-i];
+                // If neither is 'Bye', create match
+                if(a && b) rounds.push({ 
+                    tournament_id: currentTid, 
+                    round_number: r+1, 
+                    player_a_id: a, 
+                    player_b_id: b 
+                });
+            }
+            // Rotate array
+            pIds.splice(1, 0, pIds.pop());
         }
 
-        html += `</tbody></table></div>`;
-      }
+        const { error } = await supabase.from('matches').insert(rounds);
+        if(!error) refreshData();
+        else setStatus(error.message);
+    }
 
-      $("matchesArea").innerHTML = html;
-
-      document.querySelectorAll("[data-save]").forEach(btn => {
-        btn.addEventListener("click", async () => {
-          const matchId = btn.getAttribute("data-save");
-          const sel = document.querySelector(`select[data-match="${matchId}"]`);
-          const winnerId = sel.value || null;
-
-          const { error } = await supabase
-            .from("matches")
-            .update({ winner_id: winnerId, completed: !!winnerId })
-            .eq("id", matchId);
-
-          if (error) return setStatus(error.message, "err");
-          setStatus("Saved match result.", "ok");
-          await renderMatches();
-          await renderStandings();
-          await renderTournamentsList();
+    function renderMatches(matches) {
+        if(!matches.length) return $('matchesContainer').innerHTML = '<p class="muted">No matches.</p>';
+        
+        // Group by Round
+        const byRound = {};
+        matches.forEach(m => {
+            if(!byRound[m.round_number]) byRound[m.round_number] = [];
+            byRound[m.round_number].push(m);
         });
-      });
+
+        let html = '';
+        Object.keys(byRound).forEach(r => {
+            html += `<div style="margin-top:15px; margin-bottom:5px; font-size:12px; color:var(--muted); font-weight:bold; letter-spacing:1px">ROUND ${r}</div>`;
+            byRound[r].forEach(m => {
+                const pA = playersCache.find(p => p.id === m.player_a_id) || {name:'?'};
+                const pB = playersCache.find(p => p.id === m.player_b_id) || {name:'?'};
+                
+                const winA = m.winner_id === m.player_a_id;
+                const winB = m.winner_id === m.player_b_id;
+                
+                html += `
+                <div class="match-card">
+                    <div class="match-players">
+                        <div class="p-side ${winA?'winner-text':''}" onclick="setWinner('${m.id}','${m.player_a_id}')">
+                            <img src="${pA.avatar_url || ''}" class="avatar-sm">
+                            <span>${pA.name}</span>
+                        </div>
+                        <div class="vs-badge">VS</div>
+                        <div class="p-side p-right ${winB?'winner-text':''}" onclick="setWinner('${m.id}','${m.player_b_id}')">
+                            <img src="${pB.avatar_url || ''}" class="avatar-sm">
+                            <span>${pB.name}</span>
+                        </div>
+                    </div>
+                </div>`;
+            });
+        });
+        $('matchesContainer').innerHTML = html;
     }
 
-    async function renderStandings(){
-      const tid = getTournamentId();
-      if (!tid){
-        $("standingsArea").innerHTML = `<span class="muted">Select or create a tournament first.</span>`;
-        return;
-      }
-
-      const participants = await getParticipants(tid);
-      const map = new Map(participants.map(p => [p.id, { id:p.id, name:p.name, wins:0, losses:0, played:0 }]));
-
-      const { data: matches, error } = await supabase
-        .from("matches")
-        .select("player_a_id, player_b_id, winner_id, completed")
-        .eq("tournament_id", tid);
-
-      if (error){
-        $("standingsArea").innerHTML = `<span style="color:var(--danger)">${escapeHtml(error.message)}</span>`;
-        return;
-      }
-
-      for (const m of (matches || [])){
-        if (!m.completed || !m.winner_id) continue;
-        const a = map.get(m.player_a_id);
-        const b = map.get(m.player_b_id);
-        if (!a || !b) continue;
-
-        a.played++; b.played++;
-        if (m.winner_id === m.player_a_id){ a.wins++; b.losses++; }
-        else if (m.winner_id === m.player_b_id){ b.wins++; a.losses++; }
-      }
-
-      const rows = [...map.values()].sort((x,y) => (y.wins - x.wins) || (x.losses - y.losses) || x.name.localeCompare(y.name));
-
-      let html = `<table>
-        <thead><tr><th>#</th><th>Player</th><th>W</th><th>L</th><th>Played</th></tr></thead>
-        <tbody>
-      `;
-
-      rows.forEach((r,i)=>{
-        html += `<tr><td>${i+1}</td><td>${escapeHtml(r.name)}</td><td>${r.wins}</td><td>${r.losses}</td><td>${r.played}</td></tr>`;
-      });
-
-      html += `</tbody></table>`;
-      $("standingsArea").innerHTML = html;
+    window.setWinner = async (mid, pid) => {
+        if(!confirm('Set winner?')) return;
+        await supabase.from('matches').update({ winner_id: pid, completed: true }).eq('id', mid);
+        refreshData();
     }
 
-    async function refreshAll(){
-      await loadTournamentLabel();
-      await renderTournamentsList();
-      await renderExistingPlayersDropdown();
-      await renderPlayers();
-      await renderMatches();
-      await renderStandings();
+    // --- STANDINGS ---
+    
+    function calculateAndRenderStandings(matches) {
+        // Init stats for all players in this tournament
+        const stats = {};
+        playersCache.forEach(p => {
+            stats[p.id] = { ...p, w:0, l:0, pts:0, played:0 };
+        });
+
+        matches.forEach(m => {
+            if(m.completed && m.winner_id) {
+                const w = stats[m.winner_id];
+                const l = stats[m.player_a_id === m.winner_id ? m.player_b_id : m.player_a_id];
+                // Check if players still exist (might have been deleted)
+                if(w && l) {
+                    w.w++; w.pts+=3; w.played++;
+                    l.l++; l.played++;
+                }
+            }
+        });
+
+        // Sort: Points first, then Trophies (typical CR tiebreaker)
+        const sorted = Object.values(stats).sort((a,b) => b.pts - a.pts || b.trophies - a.trophies);
+        
+        $('standingsContainer').innerHTML = `
+            <table>
+                <thead><tr><th>Rk</th><th>Player</th><th>W</th><th>L</th><th>Pts</th></tr></thead>
+                <tbody>
+                    ${sorted.map((p,i) => `
+                        <tr>
+                            <td>#${i+1}</td>
+                            <td>
+                                <div class="player-cell">
+                                    <img src="${p.avatar_url || ''}" class="avatar-sm">
+                                    <span style="cursor:pointer; font-weight:bold" onclick="openProfile('${p.id}')">${p.name}</span>
+                                </div>
+                            </td>
+                            <td>${p.w}</td>
+                            <td>${p.l}</td>
+                            <td style="color:var(--accent2); font-weight:bold">${p.pts}</td>
+                        </tr>
+                    `).join('')}
+                </tbody>
+            </table>
+        `;
     }
 
-    // ---- Buttons ----
-    $("createTournamentBtn").addEventListener("click", async () => {
-      const name = $("tournamentName").value.trim();
-      if (!name) return setStatus("Type a tournament name first.", "err");
-
-      setStatus("Creating tournament...");
-      const { data, error } = await supabase
-        .from("tournaments")
-        .insert({ name })
-        .select("id,name")
-        .single();
-
-      if (error) return setStatus(error.message, "err");
-
-      $("tournamentName").value = "";
-      setTournamentId(data.id);
-      setStatus("Tournament created and selected.", "ok");
-      await refreshAll();
-    });
-
-    $("refreshAllBtn").addEventListener("click", async () => {
-      setStatus("Refreshing…");
-      await refreshAll();
-      setStatus("Refreshed.", "ok");
-    });
-
-    $("clearLocalBtn").addEventListener("click", async () => {
-      clearTournamentId();
-      setStatus("Cleared selection.", "warn");
-      await refreshAll();
-    });
-
-    $("copyShareBtn").addEventListener("click", async () => {
-      const tid = getTournamentId();
-      if (!tid) return setStatus("Select a tournament first to share it.", "warn");
-      const url = new URL(window.location.href);
-      url.searchParams.set("t", tid);
-      await navigator.clipboard.writeText(url.toString());
-      setStatus("Share link copied. Send it to friends.", "ok");
-    });
-
-    $("addExistingBtn").addEventListener("click", async () => {
-      const tid = getTournamentId();
-      if (!tid) return setStatus("Select or create a tournament first.", "err");
-
-      const pid = $("existingPlayersSelect").value;
-      if (!pid) return setStatus("Choose a player from the dropdown first.", "warn");
-
-      const { error } = await supabase
-        .from("tournament_players")
-        .insert({ tournament_id: tid, player_id: pid });
-
-      if (error){
-        // Common: duplicate key if already added
-        return setStatus("Could not add (maybe already in tournament).", "warn");
-      }
-      setStatus("Player added to tournament.", "ok");
-      await refreshAll();
-    });
-
-    $("addPlayerBtn").addEventListener("click", async () => {
-      const tid = getTournamentId();
-      if (!tid) return setStatus("Select or create a tournament first.", "err");
-
-      const name = $("playerName").value.trim();
-      if (!name) return setStatus("Type a player name first.", "warn");
-
-      setStatus("Creating player...");
-      const { data: player, error: e1 } = await supabase
-        .from("players")
-        .insert({ name })
-        .select("id,name")
-        .single();
-
-      if (e1) return setStatus(e1.message, "err");
-
-      const { error: e2 } = await supabase
-        .from("tournament_players")
-        .insert({ tournament_id: tid, player_id: player.id });
-
-      if (e2) return setStatus(e2.message, "err");
-
-      $("playerName").value = "";
-      setStatus("Player created and added.", "ok");
-      await refreshAll();
-    });
-
-    $("generateBtn").addEventListener("click", async () => {
-      const tid = getTournamentId();
-      if (!tid) return setStatus("Select or create a tournament first.", "err");
-
-      const participants = await getParticipants(tid);
-      if (participants.length < 2) return setStatus("Add at least 2 players.", "warn");
-
-      const { data: existing } = await supabase
-        .from("matches")
-        .select("id")
-        .eq("tournament_id", tid)
-        .limit(1);
-
-      if (existing && existing.length > 0) return setStatus("Schedule already exists. Delete schedule first if you want a new one.", "warn");
-
-      setStatus("Generating schedule…");
-      const ids = participants.map(p => p.id);
-      const schedule = generateRoundRobin(ids);
-
-      const inserts = [];
-      for (const round of schedule){
-        for (const [a,b] of round.matches){
-          inserts.push({ tournament_id: tid, round_number: round.round, player_a_id: a, player_b_id: b });
+    async function createTournament() {
+        const name = $('newTourneyName').value;
+        if(!name) return;
+        const { data } = await supabase.from('tournaments').insert({name}).select().single();
+        if(data) {
+            currentTid = data.id;
+            // Reload list and select new one
+            await loadTournaments();
+            $('tourneySelect').value = currentTid;
+            refreshData();
+            $('newTourneyName').value = '';
         }
-      }
+    }
 
-      const { error } = await supabase.from("matches").insert(inserts);
-      if (error) return setStatus(error.message, "err");
+    function setStatus(msg) { $('statusMsg').innerText = msg; }
+    
+    // Make modal global for onclick events
+    window.openProfile = (pid) => {
+        const p = playersCache.find(x => x.id == pid);
+        if(!p) return;
+        $('pmName').innerText = p.name;
+        $('pmTag').innerText = p.tag || "#UNKNOWN";
+        $('pmTrophies').innerText = p.trophies;
+        $('pmRank').innerText = p.best_rank > 0 ? `#${p.best_rank}` : "Unranked";
+        $('pmCard').innerText = p.favorite_card || "-";
+        $('pmImg').src = p.avatar_url;
+        $('profileModal').classList.add('open');
+    }
+    
+    window.closeProfile = () => {
+        $('profileModal').classList.remove('open');
+    }
 
-      setStatus("Schedule generated.", "ok");
-      await refreshAll();
-    });
-
-    $("deleteMatchesBtn").addEventListener("click", async () => {
-      const tid = getTournamentId();
-      if (!tid) return setStatus("Select or create a tournament first.", "err");
-      const ok = confirm("Delete ALL matches for this tournament?");
-      if (!ok) return;
-
-      const { error } = await supabase.from("matches").delete().eq("tournament_id", tid);
-      if (error) return setStatus(error.message, "err");
-
-      setStatus("Schedule deleted.", "warn");
-      await refreshAll();
-    });
-
-    $("standingsBtn").addEventListener("click", async () => {
-      await renderStandings();
-      setStatus("Standings updated.", "ok");
-    });
-
-    // ---- Initial load ----
-    (async () => {
-      setStatus("Loading…");
-      await refreshAll();
-      setStatus("Ready.", "ok");
-    })();
+    init();
   </script>
 </body>
 </html>
