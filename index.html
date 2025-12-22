@@ -5,96 +5,272 @@
   <meta name="viewport" content="width=device-width,initial-scale=1" />
   <title>Clash Royale 1v1 Tournament</title>
   <style>
-    body { font-family: Arial, sans-serif; margin: 18px; max-width: 980px; }
-    h1 { margin: 0 0 10px; }
-    .card { border: 1px solid #ddd; border-radius: 10px; padding: 14px; margin: 12px 0; }
-    .row { display: flex; gap: 10px; flex-wrap: wrap; align-items: center; }
-    input, button, select { padding: 8px; border-radius: 8px; border: 1px solid #ccc; }
-    button { cursor: pointer; }
-    table { width: 100%; border-collapse: collapse; margin-top: 10px; }
-    th, td { border-bottom: 1px solid #eee; padding: 8px; text-align: left; }
-    .muted { color: #666; }
-    .danger { color: #b00020; }
-    .success { color: #0b7a0b; }
-    .small { font-size: 13px; }
-    .spacer { height: 6px; }
+    :root{
+      --bg:#0b1020;
+      --card:#111a33;
+      --card2:#0f1730;
+      --text:#e9eeff;
+      --muted:#a8b0d6;
+      --line:rgba(255,255,255,.10);
+      --accent:#7c5cff;
+      --accent2:#2ee59d;
+      --danger:#ff4d6d;
+      --warn:#ffcc00;
+      --shadow: 0 12px 30px rgba(0,0,0,.35);
+      --radius:18px;
+    }
+    *{box-sizing:border-box}
+    body{
+      margin:0;
+      font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Arial, "Apple Color Emoji","Segoe UI Emoji";
+      background: radial-gradient(1200px 700px at 30% 0%, rgba(124,92,255,.25), transparent 55%),
+                  radial-gradient(900px 600px at 90% 10%, rgba(46,229,157,.18), transparent 50%),
+                  var(--bg);
+      color:var(--text);
+    }
+    a{color:inherit}
+    .wrap{max-width:1100px;margin:28px auto;padding:0 16px 40px}
+    header{
+      display:flex; gap:14px; align-items:flex-end; justify-content:space-between;
+      margin-bottom:16px;
+    }
+    .title h1{margin:0;font-size:30px;letter-spacing:.2px}
+    .title p{margin:6px 0 0;color:var(--muted);font-size:13.5px}
+    .pill{
+      display:inline-flex;align-items:center;gap:10px;
+      background: rgba(255,255,255,.06);
+      border:1px solid var(--line);
+      padding:10px 12px;border-radius:999px;
+      box-shadow: var(--shadow);
+    }
+    .pill b{font-weight:650}
+    .grid{
+      display:grid;
+      grid-template-columns: 1.2fr 1fr;
+      gap:14px;
+      margin-top:12px;
+    }
+    @media (max-width: 900px){
+      .grid{grid-template-columns:1fr}
+      header{flex-direction:column;align-items:flex-start}
+    }
+    .card{
+      background: linear-gradient(180deg, rgba(255,255,255,.06), rgba(255,255,255,.03));
+      border:1px solid var(--line);
+      border-radius:var(--radius);
+      padding:14px;
+      box-shadow: var(--shadow);
+    }
+    .card h2{
+      margin:0 0 10px;
+      font-size:16px;
+      letter-spacing:.2px;
+    }
+    .row{display:flex;flex-wrap:wrap;gap:10px;align-items:center}
+    input, select, button{
+      border-radius:12px;
+      border:1px solid var(--line);
+      background: rgba(0,0,0,.18);
+      color:var(--text);
+      padding:10px 11px;
+      outline:none;
+    }
+    input::placeholder{color:rgba(233,238,255,.45)}
+    button{
+      cursor:pointer;
+      background: rgba(124,92,255,.18);
+      border:1px solid rgba(124,92,255,.45);
+      transition: transform .06s ease, background .15s ease;
+    }
+    button:hover{background: rgba(124,92,255,.28)}
+    button:active{transform: translateY(1px)}
+    .btn2{background: rgba(46,229,157,.14); border-color: rgba(46,229,157,.45)}
+    .btn2:hover{background: rgba(46,229,157,.20)}
+    .btnghost{background: rgba(255,255,255,.06); border-color: var(--line)}
+    .btndanger{background: rgba(255,77,109,.15); border-color: rgba(255,77,109,.50)}
+    .btndanger:hover{background: rgba(255,77,109,.22)}
+    .small{font-size:13px}
+    .muted{color:var(--muted)}
+    .status{margin-top:8px;font-size:13px;color:var(--muted)}
+    .status.ok{color:var(--accent2)}
+    .status.err{color:var(--danger)}
+    .status.warn{color:var(--warn)}
+    .split{
+      display:grid; grid-template-columns: 1fr 1fr; gap:14px;
+    }
+    @media (max-width: 900px){ .split{grid-template-columns:1fr} }
+    .list{
+      display:flex; flex-direction:column; gap:8px;
+      max-height: 320px; overflow:auto; padding-right:6px;
+    }
+    .item{
+      display:flex; gap:10px; justify-content:space-between; align-items:center;
+      padding:10px 10px;
+      border:1px solid var(--line);
+      border-radius:14px;
+      background: rgba(0,0,0,.14);
+    }
+    .item .left{display:flex; flex-direction:column; gap:2px}
+    .item .name{font-weight:650}
+    .item .meta{font-size:12px;color:var(--muted)}
+    .tag{
+      font-size:12px; padding:4px 10px; border-radius:999px;
+      border:1px solid var(--line);
+      background: rgba(255,255,255,.06);
+      color:var(--muted);
+      white-space:nowrap;
+    }
+    table{width:100%; border-collapse:collapse; margin-top:10px}
+    th,td{border-bottom:1px solid var(--line); padding:10px 8px; text-align:left; font-size:13.5px}
+    th{color:var(--muted); font-weight:600}
+    .hr{height:1px;background:var(--line);margin:10px 0}
+    .twoCols{
+      display:grid; grid-template-columns: 1fr 1fr; gap:10px;
+    }
+    @media (max-width: 700px){ .twoCols{grid-template-columns:1fr} }
+    .hint{font-size:12.5px;color:var(--muted)}
+    .mono{font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;}
   </style>
 </head>
 <body>
-  <h1>Clash Royale 1v1 Tournament</h1>
-  <div class="muted small">Create a tournament → add players → generate round-robin schedule → enter winners → see standings.</div>
+  <div class="wrap">
+    <header>
+      <div class="title">
+        <h1>Clash Royale 1v1 Tournament</h1>
+        <p>Create → add players → generate round-robin → save winners → standings. Old tournaments stay saved.</p>
+      </div>
+      <div class="pill small">
+        <span class="muted">Current:</span>
+        <b id="currentTournamentLabel">None</b>
+        <span class="tag mono" id="currentTournamentIdTag" style="display:none"></span>
+        <button class="btnghost" id="copyShareBtn" title="Copy share link">Copy link</button>
+      </div>
+    </header>
 
-  <div class="card">
-    <h2>1) Tournament</h2>
-    <div class="row">
-      <input id="tournamentName" placeholder="Tournament name (e.g., Friday Night #3)" size="38" />
-      <button id="createTournamentBtn">Create / Switch</button>
-      <button id="clearLocalBtn">Clear current tournament</button>
+    <div class="grid">
+      <!-- LEFT COLUMN -->
+      <div class="card">
+        <h2>🏆 Tournament History</h2>
+        <div class="row">
+          <input id="tournamentName" placeholder="New tournament name (e.g., Friday Night #3)" style="flex:1;min-width:240px" />
+          <button id="createTournamentBtn">Create</button>
+          <button class="btnghost" id="refreshAllBtn">Refresh</button>
+        </div>
+        <div class="status" id="status">Ready.</div>
+        <div class="hr"></div>
+        <div class="list" id="tournamentsList"></div>
+        <div class="hint" style="margin-top:10px;">
+          Tip: click <b>Select</b> to view old tournaments anytime. <span class="muted">(Delete removes matches too.)</span>
+        </div>
+      </div>
+
+      <!-- RIGHT COLUMN -->
+      <div class="card">
+        <h2>👥 Players & Matchmaking</h2>
+
+        <div class="split">
+          <div>
+            <div class="hint">Add a player to the selected tournament:</div>
+            <div class="row" style="margin-top:8px;">
+              <select id="existingPlayersSelect" style="flex:1;min-width:240px">
+                <option value="">Choose existing player…</option>
+              </select>
+              <button class="btn2" id="addExistingBtn">Add</button>
+            </div>
+
+            <div class="row" style="margin-top:10px;">
+              <input id="playerName" placeholder="Or type a new player name" style="flex:1;min-width:240px" />
+              <button id="addPlayerBtn">Create & Add</button>
+            </div>
+
+            <div class="hr"></div>
+            <div class="hint">Participants in this tournament:</div>
+            <div id="playersList" class="small" style="margin-top:8px;"></div>
+          </div>
+
+          <div>
+            <div class="hint">Schedule:</div>
+            <div class="row" style="margin-top:8px;">
+              <button id="generateBtn">Generate round-robin</button>
+              <button class="btndanger" id="deleteMatchesBtn">Delete schedule</button>
+            </div>
+            <div class="row" style="margin-top:10px;">
+              <button class="btnghost" id="standingsBtn">Update standings</button>
+              <button class="btnghost" id="clearLocalBtn">Clear selection</button>
+            </div>
+            <div class="hint" style="margin-top:10px;">
+              Round-robin: everyone plays each other once. Odd players → automatic BYE rotation.
+            </div>
+          </div>
+        </div>
+
+        <div class="hr"></div>
+
+        <div class="twoCols">
+          <div>
+            <h2 style="margin-top:0;">🗓 Matches</h2>
+            <div id="matchesArea" class="small"></div>
+          </div>
+          <div>
+            <h2 style="margin-top:0;">📊 Standings</h2>
+            <div id="standingsArea" class="small"></div>
+          </div>
+        </div>
+      </div>
     </div>
-    <div class="spacer"></div>
-    <div class="small">Current tournament: <b id="currentTournamentLabel">None</b></div>
-    <div class="small muted" id="status"></div>
-  </div>
-
-  <div class="card">
-    <h2>2) Players</h2>
-    <div class="row">
-      <input id="playerName" placeholder="Player name (e.g., Nihad)" size="26" />
-      <button id="addPlayerBtn">Add player</button>
-      <button id="refreshBtn">Refresh</button>
-    </div>
-
-    <div class="spacer"></div>
-    <div class="small muted">Participants in this tournament:</div>
-    <div id="playersList" class="small"></div>
-  </div>
-
-  <div class="card">
-    <h2>3) Matchmaking (Round-robin)</h2>
-    <div class="row">
-      <button id="generateBtn">Generate schedule</button>
-      <button id="deleteMatchesBtn">Delete schedule (danger)</button>
-    </div>
-    <div class="spacer"></div>
-    <div class="small muted">Matches:</div>
-    <div id="matchesArea"></div>
-  </div>
-
-  <div class="card">
-    <h2>4) Standings</h2>
-    <button id="standingsBtn">Update standings</button>
-    <div id="standingsArea"></div>
   </div>
 
   <script type="module">
-    // ✅ PASTE YOUR SUPABASE VALUES HERE
+    // ✅ YOUR SUPABASE VALUES
     const SUPABASE_URL = "https://izmzpnfpcdxdqwgghsyq.supabase.co";
     const SUPABASE_ANON_KEY = "sb_publishable_4kW-ZwFSbzqPkWz63jYcGw_Kldfdp7R";
 
     import { createClient } from "https://cdn.jsdelivr.net/npm/@supabase/supabase-js/+esm";
     const supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
-    // ---------- Helpers ----------
     const $ = (id) => document.getElementById(id);
-    const statusEl = $("status");
 
-    function setStatus(msg, type="muted") {
-      statusEl.className = "small " + type;
-      statusEl.textContent = msg;
+    function setStatus(msg, type="muted"){
+      const el = $("status");
+      el.textContent = msg;
+      el.className = "status " + (type === "ok" ? "ok" : type === "err" ? "err" : type === "warn" ? "warn" : "");
     }
 
-    function getTournamentId() {
+    function escapeHtml(s){
+      return (s ?? "").toString()
+        .replaceAll("&","&amp;").replaceAll("<","&lt;").replaceAll(">","&gt;")
+        .replaceAll('"',"&quot;").replaceAll("'","&#039;");
+    }
+
+    function fmtDate(iso){
+      try{
+        const d = new Date(iso);
+        return d.toLocaleString(undefined, { year:"numeric", month:"short", day:"2-digit", hour:"2-digit", minute:"2-digit" });
+      }catch{ return iso; }
+    }
+
+    // ---- Tournament selection via localStorage + URL param ?t= ----
+    function getTournamentId(){
+      const url = new URL(window.location.href);
+      const t = url.searchParams.get("t");
+      if (t) return t;
       return localStorage.getItem("cr_tournament_id");
     }
-    function setTournamentId(id) {
+    function setTournamentId(id){
       localStorage.setItem("cr_tournament_id", id);
+      const url = new URL(window.location.href);
+      url.searchParams.set("t", id);
+      history.replaceState(null, "", url.toString());
     }
-    function clearTournamentId() {
+    function clearTournamentId(){
       localStorage.removeItem("cr_tournament_id");
+      const url = new URL(window.location.href);
+      url.searchParams.delete("t");
+      history.replaceState(null, "", url.toString());
     }
 
-    // Round-robin schedule generator (circle method)
-    function generateRoundRobin(playerIds) {
+    // ---- Round-robin schedule generator (circle method) ----
+    function generateRoundRobin(playerIds){
       const list = [...playerIds];
       const BYE = null;
       if (list.length % 2 === 1) list.push(BYE);
@@ -107,125 +283,236 @@
       let rotating = list.slice(1);
 
       const schedule = [];
-      for (let r = 0; r < rounds; r++) {
+      for (let r = 0; r < rounds; r++){
         const left = [fixed, ...rotating.slice(0, half - 1)];
         const right = rotating.slice(half - 1).slice().reverse();
 
         const matches = [];
-        for (let i = 0; i < half; i++) {
-          const a = left[i];
-          const b = right[i];
-          if (a !== BYE && b !== BYE) matches.push([a, b]);
+        for (let i=0;i<half;i++){
+          const a = left[i], b = right[i];
+          if (a !== BYE && b !== BYE) matches.push([a,b]);
         }
+        schedule.push({ round: r+1, matches });
 
-        schedule.push({ round: r + 1, matches });
         rotating = [rotating[rotating.length - 1], ...rotating.slice(0, rotating.length - 1)];
       }
       return schedule;
     }
 
-    async function loadTournamentLabel() {
+    // ---- Data loaders ----
+    async function loadTournamentLabel(){
       const tid = getTournamentId();
-      if (!tid) {
+      if (!tid){
         $("currentTournamentLabel").textContent = "None";
+        $("currentTournamentIdTag").style.display = "none";
         return;
       }
+
       const { data, error } = await supabase
         .from("tournaments")
         .select("id,name,created_at")
         .eq("id", tid)
         .maybeSingle();
 
-      if (error || !data) {
+      if (error || !data){
         $("currentTournamentLabel").textContent = "None";
+        $("currentTournamentIdTag").style.display = "none";
         clearTournamentId();
         return;
       }
-      $("currentTournamentLabel").textContent = `${data.name} (${data.id.slice(0,8)})`;
+
+      $("currentTournamentLabel").textContent = data.name;
+      $("currentTournamentIdTag").style.display = "inline-flex";
+      $("currentTournamentIdTag").textContent = data.id.slice(0,8);
     }
 
-    async function getParticipants(tournamentId) {
+    async function renderTournamentsList(){
+      const tid = getTournamentId();
+
+      const { data: tournaments, error } = await supabase
+        .from("tournaments")
+        .select("id,name,created_at")
+        .order("created_at", { ascending:false })
+        .limit(50);
+
+      if (error){
+        $("tournamentsList").innerHTML = `<div class="item"><div class="left"><div class="name">Error</div><div class="meta">${escapeHtml(error.message)}</div></div></div>`;
+        return;
+      }
+
+      if (!tournaments || tournaments.length === 0){
+        $("tournamentsList").innerHTML = `<div class="muted small">No tournaments yet. Create one above.</div>`;
+        return;
+      }
+
+      $("tournamentsList").innerHTML = tournaments.map(t => {
+        const isCurrent = (t.id === tid);
+        return `
+          <div class="item">
+            <div class="left">
+              <div class="name">${escapeHtml(t.name)} ${isCurrent ? `<span class="tag">Current</span>` : ""}</div>
+              <div class="meta">Created: ${escapeHtml(fmtDate(t.created_at))} · ID: <span class="mono">${escapeHtml(t.id.slice(0,8))}</span></div>
+            </div>
+            <div class="row" style="gap:8px;justify-content:flex-end">
+              <button class="btnghost" data-select="${t.id}">Select</button>
+              <button class="btndanger" data-delete="${t.id}">Delete</button>
+            </div>
+          </div>
+        `;
+      }).join("");
+
+      document.querySelectorAll("[data-select]").forEach(btn => {
+        btn.addEventListener("click", async () => {
+          const id = btn.getAttribute("data-select");
+          setTournamentId(id);
+          setStatus("Switched tournament.", "ok");
+          await refreshAll();
+        });
+      });
+
+      document.querySelectorAll("[data-delete]").forEach(btn => {
+        btn.addEventListener("click", async () => {
+          const id = btn.getAttribute("data-delete");
+          const ok = confirm("Delete this tournament? This will also delete its matches and participants.");
+          if (!ok) return;
+
+          const { error } = await supabase.from("tournaments").delete().eq("id", id);
+          if (error) return setStatus(error.message, "err");
+
+          if (getTournamentId() === id) clearTournamentId();
+          setStatus("Tournament deleted.", "warn");
+          await refreshAll();
+        });
+      });
+    }
+
+    async function getParticipants(tournamentId){
       const { data, error } = await supabase
         .from("tournament_players")
         .select("player_id, players(name)")
         .eq("tournament_id", tournamentId);
 
       if (error) throw error;
-      // Normalize
-      return (data || []).map(row => ({
-        id: row.player_id,
-        name: row.players?.name ?? "Unknown"
-      }));
+      return (data || []).map(r => ({ id: r.player_id, name: r.players?.name ?? "Unknown" }));
     }
 
-    async function renderPlayers() {
+    async function renderPlayers(){
       const tid = getTournamentId();
-      if (!tid) { $("playersList").innerHTML = "<span class='danger'>Create/select a tournament first.</span>"; return; }
-
-      const participants = await getParticipants(tid);
-      if (participants.length === 0) {
-        $("playersList").innerHTML = "<span class='muted'>No players yet.</span>";
+      if (!tid){
+        $("playersList").innerHTML = `<span class="muted">Select or create a tournament first.</span>`;
         return;
       }
-      $("playersList").innerHTML = participants
-        .map(p => `• ${escapeHtml(p.name)} <span class="muted">(${p.id.slice(0,8)})</span>`)
-        .join("<br/>");
+
+      const participants = await getParticipants(tid);
+      if (participants.length === 0){
+        $("playersList").innerHTML = `<span class="muted">No players yet.</span>`;
+        return;
+      }
+
+      $("playersList").innerHTML = participants.map(p => `
+        <div class="item" style="padding:8px 10px;">
+          <div class="left">
+            <div class="name">${escapeHtml(p.name)}</div>
+            <div class="meta">ID: <span class="mono">${escapeHtml(p.id.slice(0,8))}</span></div>
+          </div>
+          <div class="row" style="gap:8px;">
+            <button class="btndanger" data-remove-player="${p.id}">Remove</button>
+          </div>
+        </div>
+      `).join("");
+
+      document.querySelectorAll("[data-remove-player]").forEach(btn => {
+        btn.addEventListener("click", async () => {
+          const pid = btn.getAttribute("data-remove-player");
+          const ok = confirm("Remove this player from the tournament? (Does not delete player globally)");
+          if (!ok) return;
+
+          const { error } = await supabase
+            .from("tournament_players")
+            .delete()
+            .eq("tournament_id", tid)
+            .eq("player_id", pid);
+
+          if (error) return setStatus(error.message, "err");
+          setStatus("Player removed from tournament.", "warn");
+          await refreshAll();
+        });
+      });
     }
 
-    function escapeHtml(s) {
-      return s.replaceAll("&", "&amp;").replaceAll("<", "&lt;").replaceAll(">", "&gt;");
+    async function renderExistingPlayersDropdown(){
+      const { data, error } = await supabase
+        .from("players")
+        .select("id,name,created_at")
+        .order("created_at", { ascending:false })
+        .limit(200);
+
+      if (error){
+        $("existingPlayersSelect").innerHTML = `<option value="">Error loading players</option>`;
+        return;
+      }
+
+      const opts = (data || []).map(p => `<option value="${p.id}">${escapeHtml(p.name)}</option>`).join("");
+      $("existingPlayersSelect").innerHTML = `<option value="">Choose existing player…</option>${opts}`;
     }
 
-    async function renderMatches() {
+    async function renderMatches(){
       const tid = getTournamentId();
-      if (!tid) { $("matchesArea").innerHTML = "<span class='danger'>Create/select a tournament first.</span>"; return; }
+      if (!tid){
+        $("matchesArea").innerHTML = `<span class="muted">Select or create a tournament first.</span>`;
+        return;
+      }
 
       const { data: matches, error } = await supabase
         .from("matches")
         .select("id, round_number, player_a_id, player_b_id, winner_id, completed, playersA:player_a_id(name), playersB:player_b_id(name)")
         .eq("tournament_id", tid)
-        .order("round_number", { ascending: true });
+        .order("round_number", { ascending:true });
 
-      if (error) { $("matchesArea").innerHTML = `<span class='danger'>${escapeHtml(error.message)}</span>`; return; }
-      if (!matches || matches.length === 0) {
-        $("matchesArea").innerHTML = "<span class='muted'>No schedule yet. Click “Generate schedule”.</span>";
+      if (error){
+        $("matchesArea").innerHTML = `<span style="color:var(--danger)">${escapeHtml(error.message)}</span>`;
         return;
       }
 
-      // Group by round
+      if (!matches || matches.length === 0){
+        $("matchesArea").innerHTML = `<span class="muted">No schedule yet. Click “Generate round-robin”.</span>`;
+        return;
+      }
+
       const byRound = new Map();
-      for (const m of matches) {
+      for (const m of matches){
         if (!byRound.has(m.round_number)) byRound.set(m.round_number, []);
         byRound.get(m.round_number).push(m);
       }
 
       let html = "";
-      for (const [round, roundMatches] of byRound.entries()) {
-        html += `<div class="card" style="margin:10px 0; padding:10px;">
-          <b>Round ${round}</b>
+      for (const [round, arr] of byRound.entries()){
+        html += `<div class="item" style="flex-direction:column;align-items:stretch;gap:8px;">
+          <div class="row" style="justify-content:space-between;">
+            <div><b>Round ${round}</b></div>
+            <div class="tag">${arr.filter(x=>x.completed).length}/${arr.length} done</div>
+          </div>
           <table>
-            <thead><tr><th>Match</th><th>Winner</th><th>Action</th></tr></thead>
-            <tbody>`;
+            <thead><tr><th>Match</th><th>Winner</th><th></th></tr></thead>
+            <tbody>
+        `;
 
-        for (const m of roundMatches) {
+        for (const m of arr){
           const aName = m.playersA?.name ?? "A";
           const bName = m.playersB?.name ?? "B";
-          const winner = m.winner_id;
-
-          html += `<tr>
-            <td>${escapeHtml(aName)} vs ${escapeHtml(bName)}</td>
-            <td>
-              <select data-match="${m.id}" class="winnerSelect">
-                <option value="">(not set)</option>
-                <option value="${m.player_a_id}" ${winner === m.player_a_id ? "selected" : ""}>${escapeHtml(aName)}</option>
-                <option value="${m.player_b_id}" ${winner === m.player_b_id ? "selected" : ""}>${escapeHtml(bName)}</option>
-              </select>
-            </td>
-            <td>
-              <button data-save="${m.id}" class="saveBtn">Save</button>
-              <span class="muted small">${m.completed ? "Completed" : ""}</span>
-            </td>
-          </tr>`;
+          html += `
+            <tr>
+              <td>${escapeHtml(aName)} vs ${escapeHtml(bName)}</td>
+              <td>
+                <select data-match="${m.id}">
+                  <option value="">(not set)</option>
+                  <option value="${m.player_a_id}" ${m.winner_id === m.player_a_id ? "selected" : ""}>${escapeHtml(aName)}</option>
+                  <option value="${m.player_b_id}" ${m.winner_id === m.player_b_id ? "selected" : ""}>${escapeHtml(bName)}</option>
+                </select>
+              </td>
+              <td><button class="btn2" data-save="${m.id}">Save</button></td>
+            </tr>
+          `;
         }
 
         html += `</tbody></table></div>`;
@@ -233,8 +520,7 @@
 
       $("matchesArea").innerHTML = html;
 
-      // Hook buttons
-      document.querySelectorAll(".saveBtn").forEach(btn => {
+      document.querySelectorAll("[data-save]").forEach(btn => {
         btn.addEventListener("click", async () => {
           const matchId = btn.getAttribute("data-save");
           const sel = document.querySelector(`select[data-match="${matchId}"]`);
@@ -245,46 +531,54 @@
             .update({ winner_id: winnerId, completed: !!winnerId })
             .eq("id", matchId);
 
-          if (error) setStatus(error.message, "danger");
-          else {
-            setStatus("Saved match result.", "success");
-            await renderMatches();
-          }
+          if (error) return setStatus(error.message, "err");
+          setStatus("Saved match result.", "ok");
+          await renderMatches();
+          await renderStandings();
+          await renderTournamentsList();
         });
       });
     }
 
-    async function renderStandings() {
+    async function renderStandings(){
       const tid = getTournamentId();
-      if (!tid) { $("standingsArea").innerHTML = "<span class='danger'>Create/select a tournament first.</span>"; return; }
+      if (!tid){
+        $("standingsArea").innerHTML = `<span class="muted">Select or create a tournament first.</span>`;
+        return;
+      }
 
       const participants = await getParticipants(tid);
-      const map = new Map(participants.map(p => [p.id, { id: p.id, name: p.name, wins: 0, losses: 0, played: 0 }]));
+      const map = new Map(participants.map(p => [p.id, { id:p.id, name:p.name, wins:0, losses:0, played:0 }]));
 
       const { data: matches, error } = await supabase
         .from("matches")
         .select("player_a_id, player_b_id, winner_id, completed")
         .eq("tournament_id", tid);
 
-      if (error) { $("standingsArea").innerHTML = `<span class='danger'>${escapeHtml(error.message)}</span>`; return; }
+      if (error){
+        $("standingsArea").innerHTML = `<span style="color:var(--danger)">${escapeHtml(error.message)}</span>`;
+        return;
+      }
 
-      for (const m of (matches || [])) {
+      for (const m of (matches || [])){
         if (!m.completed || !m.winner_id) continue;
         const a = map.get(m.player_a_id);
         const b = map.get(m.player_b_id);
         if (!a || !b) continue;
 
         a.played++; b.played++;
-        if (m.winner_id === m.player_a_id) { a.wins++; b.losses++; }
-        else if (m.winner_id === m.player_b_id) { b.wins++; a.losses++; }
+        if (m.winner_id === m.player_a_id){ a.wins++; b.losses++; }
+        else if (m.winner_id === m.player_b_id){ b.wins++; a.losses++; }
       }
 
       const rows = [...map.values()].sort((x,y) => (y.wins - x.wins) || (x.losses - y.losses) || x.name.localeCompare(y.name));
 
       let html = `<table>
-        <thead><tr><th>#</th><th>Player</th><th>W</th><th>L</th><th>Played</th></tr></thead><tbody>`;
+        <thead><tr><th>#</th><th>Player</th><th>W</th><th>L</th><th>Played</th></tr></thead>
+        <tbody>
+      `;
 
-      rows.forEach((r, i) => {
+      rows.forEach((r,i)=>{
         html += `<tr><td>${i+1}</td><td>${escapeHtml(r.name)}</td><td>${r.wins}</td><td>${r.losses}</td><td>${r.played}</td></tr>`;
       });
 
@@ -292,121 +586,158 @@
       $("standingsArea").innerHTML = html;
     }
 
-    // ---------- Button actions ----------
-    $("createTournamentBtn").addEventListener("click", async () => {
-      const name = $("tournamentName").value.trim();
-      if (!name) return setStatus("Type a tournament name first.", "danger");
-
-      setStatus("Creating tournament...");
-      const { data, error } = await supabase.from("tournaments").insert({ name }).select("id,name").single();
-
-      if (error) return setStatus(error.message, "danger");
-      setTournamentId(data.id);
+    async function refreshAll(){
       await loadTournamentLabel();
+      await renderTournamentsList();
+      await renderExistingPlayersDropdown();
       await renderPlayers();
       await renderMatches();
       await renderStandings();
-      setStatus("Tournament ready. Add players.", "success");
+    }
+
+    // ---- Buttons ----
+    $("createTournamentBtn").addEventListener("click", async () => {
+      const name = $("tournamentName").value.trim();
+      if (!name) return setStatus("Type a tournament name first.", "err");
+
+      setStatus("Creating tournament...");
+      const { data, error } = await supabase
+        .from("tournaments")
+        .insert({ name })
+        .select("id,name")
+        .single();
+
+      if (error) return setStatus(error.message, "err");
+
+      $("tournamentName").value = "";
+      setTournamentId(data.id);
+      setStatus("Tournament created and selected.", "ok");
+      await refreshAll();
+    });
+
+    $("refreshAllBtn").addEventListener("click", async () => {
+      setStatus("Refreshing…");
+      await refreshAll();
+      setStatus("Refreshed.", "ok");
     });
 
     $("clearLocalBtn").addEventListener("click", async () => {
       clearTournamentId();
-      await loadTournamentLabel();
-      $("playersList").innerHTML = "";
-      $("matchesArea").innerHTML = "";
-      $("standingsArea").innerHTML = "";
-      setStatus("Cleared current tournament (only on this device).", "muted");
+      setStatus("Cleared selection.", "warn");
+      await refreshAll();
+    });
+
+    $("copyShareBtn").addEventListener("click", async () => {
+      const tid = getTournamentId();
+      if (!tid) return setStatus("Select a tournament first to share it.", "warn");
+      const url = new URL(window.location.href);
+      url.searchParams.set("t", tid);
+      await navigator.clipboard.writeText(url.toString());
+      setStatus("Share link copied. Send it to friends.", "ok");
+    });
+
+    $("addExistingBtn").addEventListener("click", async () => {
+      const tid = getTournamentId();
+      if (!tid) return setStatus("Select or create a tournament first.", "err");
+
+      const pid = $("existingPlayersSelect").value;
+      if (!pid) return setStatus("Choose a player from the dropdown first.", "warn");
+
+      const { error } = await supabase
+        .from("tournament_players")
+        .insert({ tournament_id: tid, player_id: pid });
+
+      if (error){
+        // Common: duplicate key if already added
+        return setStatus("Could not add (maybe already in tournament).", "warn");
+      }
+      setStatus("Player added to tournament.", "ok");
+      await refreshAll();
     });
 
     $("addPlayerBtn").addEventListener("click", async () => {
       const tid = getTournamentId();
-      if (!tid) return setStatus("Create/select a tournament first.", "danger");
+      if (!tid) return setStatus("Select or create a tournament first.", "err");
 
       const name = $("playerName").value.trim();
-      if (!name) return setStatus("Type a player name first.", "danger");
+      if (!name) return setStatus("Type a player name first.", "warn");
 
-      setStatus("Adding player...");
-      // create player
-      const { data: player, error: e1 } = await supabase.from("players").insert({ name }).select("id,name").single();
-      if (e1) return setStatus(e1.message, "danger");
+      setStatus("Creating player...");
+      const { data: player, error: e1 } = await supabase
+        .from("players")
+        .insert({ name })
+        .select("id,name")
+        .single();
 
-      // attach to tournament
-      const { error: e2 } = await supabase.from("tournament_players").insert({ tournament_id: tid, player_id: player.id });
-      if (e2) return setStatus(e2.message, "danger");
+      if (e1) return setStatus(e1.message, "err");
+
+      const { error: e2 } = await supabase
+        .from("tournament_players")
+        .insert({ tournament_id: tid, player_id: player.id });
+
+      if (e2) return setStatus(e2.message, "err");
 
       $("playerName").value = "";
-      await renderPlayers();
-      setStatus("Player added.", "success");
-    });
-
-    $("refreshBtn").addEventListener("click", async () => {
-      await loadTournamentLabel();
-      await renderPlayers();
-      await renderMatches();
-      await renderStandings();
-      setStatus("Refreshed.", "muted");
+      setStatus("Player created and added.", "ok");
+      await refreshAll();
     });
 
     $("generateBtn").addEventListener("click", async () => {
       const tid = getTournamentId();
-      if (!tid) return setStatus("Create/select a tournament first.", "danger");
+      if (!tid) return setStatus("Select or create a tournament first.", "err");
 
       const participants = await getParticipants(tid);
-      if (participants.length < 2) return setStatus("Add at least 2 players.", "danger");
+      if (participants.length < 2) return setStatus("Add at least 2 players.", "warn");
 
-      // Check if already has matches
-      const { data: existing } = await supabase.from("matches").select("id").eq("tournament_id", tid).limit(1);
-      if (existing && existing.length > 0) return setStatus("Schedule already exists. Delete it first if you want a new one.", "danger");
+      const { data: existing } = await supabase
+        .from("matches")
+        .select("id")
+        .eq("tournament_id", tid)
+        .limit(1);
 
-      setStatus("Generating schedule...");
+      if (existing && existing.length > 0) return setStatus("Schedule already exists. Delete schedule first if you want a new one.", "warn");
+
+      setStatus("Generating schedule…");
       const ids = participants.map(p => p.id);
       const schedule = generateRoundRobin(ids);
 
       const inserts = [];
-      for (const round of schedule) {
-        for (const [a,b] of round.matches) {
-          inserts.push({
-            tournament_id: tid,
-            round_number: round.round,
-            player_a_id: a,
-            player_b_id: b
-          });
+      for (const round of schedule){
+        for (const [a,b] of round.matches){
+          inserts.push({ tournament_id: tid, round_number: round.round, player_a_id: a, player_b_id: b });
         }
       }
 
       const { error } = await supabase.from("matches").insert(inserts);
-      if (error) return setStatus(error.message, "danger");
+      if (error) return setStatus(error.message, "err");
 
-      await renderMatches();
-      setStatus("Schedule generated. Enter winners.", "success");
+      setStatus("Schedule generated.", "ok");
+      await refreshAll();
     });
 
     $("deleteMatchesBtn").addEventListener("click", async () => {
       const tid = getTournamentId();
-      if (!tid) return setStatus("Create/select a tournament first.", "danger");
+      if (!tid) return setStatus("Select or create a tournament first.", "err");
       const ok = confirm("Delete ALL matches for this tournament?");
       if (!ok) return;
 
       const { error } = await supabase.from("matches").delete().eq("tournament_id", tid);
-      if (error) return setStatus(error.message, "danger");
+      if (error) return setStatus(error.message, "err");
 
-      await renderMatches();
-      await renderStandings();
-      setStatus("Schedule deleted.", "muted");
+      setStatus("Schedule deleted.", "warn");
+      await refreshAll();
     });
 
     $("standingsBtn").addEventListener("click", async () => {
       await renderStandings();
-      setStatus("Standings updated.", "muted");
+      setStatus("Standings updated.", "ok");
     });
 
-    // ---------- Initial load ----------
+    // ---- Initial load ----
     (async () => {
-      await loadTournamentLabel();
-      await renderPlayers();
-      await renderMatches();
-      await renderStandings();
-      setStatus("Ready.", "muted");
+      setStatus("Loading…");
+      await refreshAll();
+      setStatus("Ready.", "ok");
     })();
   </script>
 </body>
