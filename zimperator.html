@@ -57,6 +57,15 @@
     .player-cell { display:flex; align-items:center; gap:10px; }
     .avatar-sm { width:24px; height:24px; border-radius:50%; object-fit:cover; background:#333; }
     
+    /* Matches & Round Header */
+    .round-header {
+        display:flex; justify-content:space-between; align-items:center;
+        margin-top:20px; margin-bottom:10px;
+        padding-bottom:5px; border-bottom:1px solid var(--line);
+    }
+    .r-title { font-size:12px; color:var(--muted); font-weight:bold; letter-spacing:1px; }
+    .btn-xs { width:auto; padding:4px 10px; font-size:11px; background:var(--accent2); color:black; border:none; }
+
     .match-card{ background:rgba(0,0,0,0.2); border:1px solid var(--line); border-radius:12px; padding:12px; margin-bottom:10px; transition:0.3s}
     .match-players{ display:flex; justify-content:space-between; align-items:center; gap:10px; }
     .p-side{ flex:1; display:flex; align-items:center; gap:8px; font-size:14px; cursor:pointer; padding:4px; border-radius:6px; transition:0.2s; }
@@ -193,7 +202,7 @@
             <div class="card">
                 <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:10px;">
                     <h2>⚔️ Match Schedule</h2>
-                    <button id="autoCheckBtn" style="width:auto; font-size:12px; padding:6px 12px; background:var(--accent2); color:#000;">⚡ Auto-Check Results</button>
+                    <button id="autoCheckBtn" style="width:auto; font-size:12px; padding:6px 12px; background:rgba(255,255,255,0.1); color:#fff; border:1px solid var(--line)">Check ALL</button>
                 </div>
                 <div id="matchesContainer">
                     <p style="color:var(--muted); font-style:italic; padding:20px;">No schedule generated.</p>
@@ -224,7 +233,10 @@
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify(payload)
             });
-            if(!response.ok) throw new Error("API Error");
+            if(!response.ok) {
+                 const errData = await response.json().catch(() => ({}));
+                 throw new Error(errData.error || `Server Error (${response.status})`);
+            }
             return await response.json();
         } catch (err) {
             console.error(err);
@@ -232,30 +244,61 @@
         }
     }
 
-    async function autoCheckResults() {
+    // Updated Auto Check: Now accepts a specific Round Number
+    async function autoCheckResults(roundNum = null) {
         if(!currentTid) return;
-        const btn = $('autoCheckBtn');
-        btn.disabled = true; btn.innerText = "Checking...";
-        setStatus("Scanning Battle Logs...");
+        
+        let btn;
+        if(roundNum) {
+            btn = document.getElementById(`btn-round-${roundNum}`);
+            if(btn) { btn.disabled = true; btn.innerText = "..."; }
+        } else {
+            btn = $('autoCheckBtn');
+            btn.disabled = true; btn.innerText = "Checking...";
+        }
+
+        setStatus(roundNum ? `Checking Round ${roundNum}...` : "Scanning All Matches...");
+        
         try {
-            const { data: matches } = await supabase.from('matches').select('*, pA:player_a_id(tag), pB:player_b_id(tag)').eq('tournament_id', currentTid).is('completed', false);
-            if(!matches || matches.length === 0) {
-                setStatus("No unfinished matches."); btn.disabled = false; btn.innerText = "⚡ Auto-Check Results"; return;
+            // Build Query
+            let query = supabase.from('matches')
+                .select('*, pA:player_a_id(tag), pB:player_b_id(tag)')
+                .eq('tournament_id', currentTid)
+                .is('completed', false);
+
+            // Filter by round if clicked specific button
+            if(roundNum) {
+                query = query.eq('round_number', roundNum);
             }
+
+            const { data: matches } = await query;
+
+            if(!matches || matches.length === 0) {
+                setStatus("No unfinished matches found.");
+                resetBtns();
+                return;
+            }
+
             let updates = 0;
             for (const m of matches) {
                 if(!m.pA?.tag || !m.pB?.tag) continue;
                 const card = document.getElementById(`match-${m.id}`);
                 if(card) card.classList.add('checking');
+                
+                // Fetch Battle Log
                 const log = await callApi({ playerTag: m.pA.tag, mode: 'battlelog' });
                 const targetTag = m.pB.tag.replace('#','');
+                
+                // Find ANY battle against this opponent (Latest first)
                 const battle = log.find(b => b.opponent[0].tag.replace('#','') === targetTag);
+                
                 if (battle) {
                     const crownsA = battle.team[0].crowns;
                     const crownsB = battle.opponent[0].crowns;
                     let winnerId = null;
                     if(crownsA > crownsB) winnerId = m.player_a_id;
                     else if(crownsB > crownsA) winnerId = m.player_b_id;
+                    
                     if(winnerId) {
                         await supabase.from('matches').update({ winner_id: winnerId, completed: true }).eq('id', m.id);
                         updates++;
@@ -266,11 +309,24 @@
             setStatus(`Check complete. Updated ${updates} matches.`);
             refreshData();
         } catch (e) {
-            setStatus("Auto-Check Error: " + e.message);
+            setStatus("Check Error: " + e.message);
         } finally {
-            btn.disabled = false; btn.innerText = "⚡ Auto-Check Results";
+            resetBtns();
+        }
+
+        function resetBtns() {
+            if(roundNum) {
+                 const b = document.getElementById(`btn-round-${roundNum}`);
+                 if(b) { b.disabled = false; b.innerText = "⚡ Check"; }
+            } else {
+                 const b = $('autoCheckBtn');
+                 b.disabled = false; b.innerText = "Check ALL";
+            }
         }
     }
+    
+    // Make function available to HTML buttons
+    window.autoCheckResults = autoCheckResults;
 
     // --- INIT ---
 
@@ -285,7 +341,7 @@
         $('deleteGlobalBtn').onclick = deletePlayerGlobally; 
         $('generateBtn').onclick = generateSchedule;
         $('refreshBtn').onclick = refreshData;
-        $('autoCheckBtn').onclick = autoCheckResults;
+        $('autoCheckBtn').onclick = () => autoCheckResults(null); // Global check
         
         $('tourneySelect').onchange = (e) => {
             currentTid = e.target.value;
@@ -310,14 +366,8 @@
         }
         
         $('clearScheduleBtn').onclick = async () => {
-             if(!confirm('⚠️ Are you sure? This will delete ALL matches in this tournament.')) return;
-             
-             const { error } = await supabase.from('matches').delete().eq('tournament_id', currentTid);
-             
-             if(error) {
-                 alert("❌ DELETE FAILED: " + error.message + "\n\nFix: Go to Supabase > matches table > Disable RLS.");
-             } else {
-                 alert("✅ Schedule Cleared!");
+             if(confirm('Delete all matches?')) {
+                 await supabase.from('matches').delete().eq('tournament_id', currentTid);
                  refreshData();
              }
         }
@@ -359,7 +409,7 @@
     }
 
     // --- PLAYER MGMT ---
-  
+
     async function addPlayer() {
         const input = $('playerTagInput').value.trim();
         if(!input) return;
@@ -379,7 +429,7 @@
             setStatus("Failed: " + e.message);
         }
     }
- 
+
     async function addExistingPlayer() {
         const pid = $('existingPlayerSelect').value;
         if(!pid) return setStatus("Select a player first.");
@@ -475,7 +525,13 @@
         });
         let html = '';
         Object.keys(byRound).forEach(r => {
-            html += `<div style="margin-top:15px; margin-bottom:5px; font-size:12px; color:var(--muted); font-weight:bold; letter-spacing:1px">ROUND ${r}</div>`;
+            // Updated Round Header with Check Button
+            html += `
+            <div class="round-header">
+                <span class="r-title">ROUND ${r}</span>
+                <button id="btn-round-${r}" class="btn-xs" onclick="autoCheckResults(${r})">⚡ Check</button>
+            </div>
+            `;
             byRound[r].forEach(m => {
                 const pA = playersCache.find(p => p.id === m.player_a_id) || {name:'?'};
                 const pB = playersCache.find(p => p.id === m.player_b_id) || {name:'?'};
