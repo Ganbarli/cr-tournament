@@ -6,16 +6,19 @@
   <title>Tournament Hub</title>
   <style>
     :root{
-      --bg:#0b1020; --card:#111a33; --text:#e9eeff; --muted:#a8b0d6;
-      --line:rgba(255,255,255,.10); --accent:#7c5cff; --accent2:#2ee59d;
+      --bg:#0b1020; --card:#161f3a; --text:#e9eeff; --muted:#94a3b8;
+      --line:rgba(255,255,255,.08); --accent:#7c5cff; --accent2:#2ee59d;
       --winner: #2ee59d; --loser: #ff4d6d;
-      --shadow: 0 12px 30px rgba(0,0,0,.35); --radius:18px;
+      --shadow: 0 12px 30px rgba(0,0,0,.35); --radius:16px;
     }
     *{box-sizing:border-box}
     body{
       margin:0; font-family: ui-sans-serif, system-ui, -apple-system, sans-serif;
-      background: radial-gradient(1200px 700px at 30% 0%, rgba(124,92,255,.15), transparent 55%), var(--bg);
-      color:var(--text);
+      background: var(--bg); color:var(--text);
+      background-image: 
+        radial-gradient(at 0% 0%, rgba(124,92,255,0.15) 0px, transparent 50%),
+        radial-gradient(at 100% 100%, rgba(46,229,157,0.1) 0px, transparent 50%);
+      background-attachment: fixed;
     }
     .wrap{max-width:900px;margin:28px auto;padding:0 16px 40px}
 
@@ -36,8 +39,7 @@
 
     .tourney-grid { display:grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap:16px; }
     .tourney-card {
-        background: linear-gradient(180deg, rgba(255,255,255,.06), rgba(255,255,255,.03));
-        border:1px solid var(--line); border-radius:16px; padding:20px;
+        background: var(--card); border:1px solid var(--line); border-radius:16px; padding:20px;
         cursor:pointer; transition: transform 0.2s, border-color 0.2s;
         text-decoration: none; display:block; color:inherit;
     }
@@ -51,8 +53,8 @@
     .detail-title h1 { margin:0; font-size:24px; }
     .detail-title span { color:var(--muted); font-size:13px; font-family:monospace; }
     
-    .card { background: rgba(17, 26, 51, 0.6); border:1px solid var(--line); border-radius:var(--radius); padding:20px; margin-bottom:20px; }
-    h2 { margin:0 0 15px; font-size:18px; color:var(--muted); text-transform:uppercase; letter-spacing:1px; font-size:12px; }
+    .card { background: var(--card); border:1px solid var(--line); border-radius:var(--radius); padding:20px; margin-bottom:20px; }
+    h2 { margin:0 0 15px; font-size:12px; text-transform:uppercase; letter-spacing:1px; color:var(--muted); }
 
     /* Standings Table */
     table{width:100%; border-collapse:collapse;}
@@ -61,6 +63,9 @@
     .rank-1{ color: #ffd700; font-weight:bold; } 
     .rank-2{ color: #c0c0c0; font-weight:bold; }
     .rank-3{ color: #cd7f32; font-weight:bold; }
+    .avatar-sm { width:24px; height:24px; border-radius:50%; object-fit:cover; background:#333; margin-right:8px; vertical-align:middle; }
+    .p-link { cursor:pointer; font-weight:600; transition:0.2s; }
+    .p-link:hover { color:var(--accent2); }
 
     /* Matches */
     .match-row {
@@ -69,15 +74,57 @@
         padding:10px 14px; border-radius:10px; margin-bottom:8px;
     }
     .m-round { font-size:11px; color:var(--muted); text-transform:uppercase; margin-bottom:6px; font-weight:bold; margin-top:12px;}
-    .p-name { font-weight:600; }
-    .vs { color:var(--muted); font-size:12px; margin:0 12px; }
-    .win { color:var(--winner); }
-    .lose { opacity:0.5; text-decoration:line-through; }
+    .vs-side { display:flex; align-items:center; gap:8px; width:40%; font-size:14px; }
+    .vs-side.right { justify-content:flex-end; text-align:right; flex-direction:row-reverse; }
+    .vs-mid { color:var(--muted); font-size:12px; font-weight:bold; width:20%; text-align:center; }
+    .win { color:var(--winner); font-weight:bold; }
+    .lose { opacity:0.5; }
+    .lose img { filter:grayscale(1); }
+
+    /* --- PROFILE MODAL (Read Only) --- */
+    .modal-overlay{ position:fixed; inset:0; background:rgba(0,0,0,0.8); backdrop-filter:blur(5px); display:flex; align-items:center; justify-content:center; z-index:100; opacity:0; pointer-events:none; transition:0.3s; }
+    .modal-overlay.open{ opacity:1; pointer-events:all; }
+    .profile-card{ background:#1c2540; border:1px solid var(--accent); width:340px; border-radius:20px; overflow:hidden; transform:scale(0.9); transition:0.3s; box-shadow: 0 0 40px rgba(124,92,255,0.2); }
+    .modal-overlay.open .profile-card{ transform:scale(1); }
+    .pc-header{ background:linear-gradient(45deg, var(--accent), #5035b4); padding:20px; text-align:center; position:relative; }
+    .pc-avatar{ width:80px; height:80px; border-radius:50%; border:3px solid white; background:#333; margin:0 auto 10px; object-fit:cover; display:block;}
+    .pc-name{ font-size:22px; font-weight:bold; color:white; margin:0; }
+    .pc-tag{ background:rgba(0,0,0,0.3); color:rgba(255,255,255,0.8); padding:4px 10px; border-radius:12px; font-family:monospace; font-size:12px; margin-top:5px; display:inline-block; }
+    .pc-stats{ padding:20px; display:grid; grid-template-columns:1fr 1fr; gap:15px; }
+    .stat-box{ background:rgba(0,0,0,0.2); padding:10px; border-radius:10px; text-align:center; border:1px solid var(--line); }
+    .stat-val{ font-size:18px; font-weight:bold; color:var(--text); display:block; }
+    .stat-lbl{ font-size:11px; color:var(--muted); text-transform:uppercase; margin-top:4px; display:block; }
+    .close-modal{ position:absolute; top:10px; right:10px; background:rgba(0,0,0,0.3); border:none; color:white; width:30px; height:30px; border-radius:50%; display:grid; place-items:center; cursor:pointer; }
     
     .loader { text-align:center; padding:40px; color:var(--muted); }
   </style>
 </head>
 <body>
+
+  <div class="modal-overlay" id="profileModal">
+    <div class="profile-card">
+        <div class="pc-header">
+            <button class="close-modal" onclick="closeProfile()">✕</button>
+            <img src="" class="pc-avatar" id="pmImg">
+            <h3 class="pc-name" id="pmName">Name</h3>
+            <span class="pc-tag" id="pmTag">#TAG</span>
+        </div>
+        <div class="pc-stats">
+            <div class="stat-box">
+                <span class="stat-val" id="pmTrophies">0</span>
+                <span class="stat-lbl">🏆 Trophies</span>
+            </div>
+            <div class="stat-box">
+                <span class="stat-val" id="pmRank">Unranked</span>
+                <span class="stat-lbl">Best Rank</span>
+            </div>
+            <div class="stat-box" style="grid-column:span 2">
+                <span class="stat-val" id="pmCard" style="font-size:14px; color:var(--accent)">-</span>
+                <span class="stat-lbl">Favorite Card</span>
+            </div>
+        </div>
+    </div>
+  </div>
 
 <div class="wrap">
   
@@ -127,10 +174,10 @@
 
     const $ = (id) => document.getElementById(id);
     let currentTid = null;
+    let playersMap = new Map(); // Store full player objects
 
     // --- INITIALIZATION ---
     async function init(){
-        // Check if URL has a specific ID (for direct sharing)
         const urlParams = new URLSearchParams(window.location.search);
         const tid = urlParams.get('t');
 
@@ -165,7 +212,6 @@
             </div>
         `).join("");
 
-        // Add Click Listeners
         document.querySelectorAll('.tourney-card').forEach(card => {
             card.addEventListener('click', () => {
                 openTournament(card.getAttribute('data-id'));
@@ -176,7 +222,6 @@
     // --- VIEW 2: OPEN TOURNAMENT ---
     async function openTournament(tid){
         currentTid = tid;
-        // Update URL without reload so user can copy/paste
         const url = new URL(window.location);
         url.searchParams.set('t', tid);
         window.history.pushState({}, '', url);
@@ -200,37 +245,46 @@
 
     async function loadDetails(tid){
         // Fetch Matches & Players
+        // Note: We join players table to get avatar_url, trophies, etc.
         const { data: matches } = await supabase
             .from("matches")
-            .select("*, playersA:player_a_id(name), playersB:player_b_id(name)")
+            .select("*, playersA:player_a_id(*), playersB:player_b_id(*)")
             .eq("tournament_id", tid)
             .order("round_number", { ascending:true });
 
         const { data: players } = await supabase
             .from("tournament_players")
-            .select("player_id, players(name)")
+            .select("player_id, players(*)")
             .eq("tournament_id", tid);
 
         // Calc Standings
+        playersMap.clear();
         const stats = new Map();
-        if(players) players.forEach(p => stats.set(p.player_id, { name:p.players.name, w:0, l:0, p:0 }));
+        
+        if(players) {
+            players.forEach(p => {
+                const pData = p.players;
+                playersMap.set(p.player_id, pData); // Save for modal
+                stats.set(p.player_id, { 
+                    ...pData, 
+                    w:0, l:0, pts:0 
+                });
+            });
+        }
 
         const rounds = {};
 
         if(matches){
             matches.forEach(m => {
-                // Schedule Grouping
                 if(!rounds[m.round_number]) rounds[m.round_number] = [];
                 rounds[m.round_number].push(m);
 
-                // Standings Logic
                 if(m.completed && m.winner_id){
                     const pA = stats.get(m.player_a_id);
                     const pB = stats.get(m.player_b_id);
                     if(pA && pB){
-                        pA.p++; pB.p++;
-                        if(m.winner_id === m.player_a_id) { pA.w++; pB.l++; }
-                        else { pB.w++; pA.l++; }
+                        if(m.winner_id === m.player_a_id) { pA.w++; pA.pts+=3; pB.l++; }
+                        else { pB.w++; pB.pts+=3; pA.l++; }
                     }
                 }
             });
@@ -242,11 +296,22 @@
 
     // --- RENDERERS ---
     function renderStandings(map){
-        const list = [...map.values()].sort((a,b) => (b.w - a.w) || (a.l - b.l));
-        let html = `<table><thead><tr><th>#</th><th>Player</th><th>W</th><th>L</th></tr></thead><tbody>`;
+        const list = [...map.values()].sort((a,b) => b.pts - a.pts || b.trophies - a.trophies);
+        let html = `<table><thead><tr><th>#</th><th>Player</th><th>W</th><th>L</th><th>Pts</th></tr></thead><tbody>`;
         list.forEach((p,i) => {
              const r = i===0?'rank-1':i===1?'rank-2':i===2?'rank-3':'';
-             html += `<tr><td class="${r}">${i+1}</td><td style="font-weight:600">${escapeHtml(p.name)}</td><td>${p.w}</td><td>${p.l}</td></tr>`;
+             const avatar = p.avatar_url || 'https://ui-avatars.com/api/?name=?';
+             html += `
+             <tr>
+                <td class="${r}">${i+1}</td>
+                <td>
+                    <img src="${avatar}" class="avatar-sm">
+                    <span class="p-link" onclick="openProfile('${p.id}')">${escapeHtml(p.name)}</span>
+                </td>
+                <td>${p.w}</td>
+                <td>${p.l}</td>
+                <td style="font-weight:bold">${p.pts}</td>
+             </tr>`;
         });
         html += `</tbody></table>`;
         $('standingsArea').innerHTML = list.length ? html : '<div class="loader">No players found.</div>';
@@ -257,18 +322,44 @@
         Object.keys(rounds).sort((a,b)=>a-b).forEach(r => {
             html += `<div class="m-round">Round ${r}</div>`;
             rounds[r].forEach(m => {
-                const nA = m.playersA?.name || "?";
-                const nB = m.playersB?.name || "?";
-                let cA = "p-name", cB = "p-name", mid = "<span class='vs'>vs</span>";
+                const pA = m.playersA || {name:'?', avatar_url:''};
+                const pB = m.playersB || {name:'?', avatar_url:''};
+                
+                let cA = "vs-side", cB = "vs-side right", mid = "vs";
                 
                 if(m.completed){
-                    if(m.winner_id == m.player_a_id){ cA+=" win"; cB+=" lose"; mid=`<span class='vs win'>1-0</span>`; }
-                    else { cB+=" win"; cA+=" lose"; mid=`<span class='vs win'>0-1</span>`; }
+                    if(m.winner_id == m.player_a_id){ cA+=" win"; cB+=" lose"; mid=`1 - 0`; }
+                    else { cB+=" win"; cA+=" lose"; mid=`0 - 1`; }
                 }
-                html += `<div class="match-row"><span class="${cA}">${escapeHtml(nA)}</span>${mid}<span class="${cB}">${escapeHtml(nB)}</span></div>`;
+                
+                const avA = `<img src="${pA.avatar_url || ''}" class="avatar-sm">`;
+                const avB = `<img src="${pB.avatar_url || ''}" class="avatar-sm">`;
+
+                html += `
+                <div class="match-row">
+                    <div class="${cA}">${avA} <span>${escapeHtml(pA.name)}</span></div>
+                    <div class="vs-mid">${mid}</div>
+                    <div class="${cB}">${avB} <span>${escapeHtml(pB.name)}</span></div>
+                </div>`;
             });
         });
         $('matchesArea').innerHTML = html || '<div class="loader">No matches generated yet.</div>';
+    }
+
+    // --- PROFILE MODAL ---
+    window.openProfile = (pid) => {
+        const p = playersMap.get(pid);
+        if(!p) return;
+        $('pmName').innerText = p.name;
+        $('pmTag').innerText = p.tag || "#UNKNOWN";
+        $('pmTrophies').innerText = p.trophies;
+        $('pmRank').innerText = p.best_rank > 0 ? `#${p.best_rank}` : "Unranked";
+        $('pmCard').innerText = p.favorite_card || "-";
+        $('pmImg').src = p.avatar_url;
+        $('profileModal').classList.add('open');
+    }
+    window.closeProfile = () => {
+        $('profileModal').classList.remove('open');
     }
 
     // --- HELPERS ---
@@ -287,18 +378,16 @@
 
     // --- LISTENERS ---
     $('backBtn').addEventListener('click', () => {
-        // Clear URL param
         const url = new URL(window.location);
         url.searchParams.delete('t');
         window.history.pushState({}, '', url);
-        loadList(); // Refresh list to get new ones
+        loadList(); 
     });
 
     $('refreshBtn').addEventListener('click', () => {
         if(currentTid) loadDetails(currentTid);
     });
 
-    // Start
     init();
 </script>
 </body>
