@@ -428,22 +428,54 @@
 
     async function generateSchedule() {
         if(playersCache.length < 2) return setStatus('Need 2+ players');
+        
+        // 1. CHECK IF SCHEDULE ALREADY EXISTS
+        const { count } = await supabase
+            .from('matches')
+            .select('*', { count: 'exact', head: true })
+            .eq('tournament_id', currentTid);
+
+        if(count > 0) {
+            setStatus("Schedule already exists.");
+            alert("⚠️ A schedule already exists!\n\nPlease click '🗑 Clear Schedule' first if you want to re-generate it.");
+            return;
+        }
+
         setStatus('Generating...');
+        
         const pIds = playersCache.map(p => p.id);
+        // If odd number of players, add a "Bye" (null)
         if(pIds.length % 2 !== 0) pIds.push(null);
+        
         const n = pIds.length;
         const rounds = [];
+        
+        // Circle Method Algorithm
         for(let r=0; r < n-1; r++) {
             for(let i=0; i < n/2; i++) {
                 const a = pIds[i];
                 const b = pIds[n-1-i];
-                if(a && b) rounds.push({ tournament_id: currentTid, round_number: r+1, player_a_id: a, player_b_id: b });
+                // Only create match if both are real players (not "Bye")
+                if(a && b) {
+                    rounds.push({ 
+                        tournament_id: currentTid, 
+                        round_number: r+1, 
+                        player_a_id: a, 
+                        player_b_id: b 
+                    });
+                }
             }
+            // Rotate the array (keep first fixed)
             pIds.splice(1, 0, pIds.pop());
         }
+
         const { error } = await supabase.from('matches').insert(rounds);
-        if(!error) refreshData();
-        else setStatus(error.message);
+        if(!error) {
+            refreshData();
+            setStatus("Schedule created!");
+        } else {
+            setStatus("Error: " + error.message);
+        }
     }
 
     function renderMatches(matches) {
